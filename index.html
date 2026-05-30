@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>資料科學期末互動練習</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #1d252d;
+      --muted: #65717f;
+      --line: #d8dee6;
+      --brand: #0f766e;
+      --brand-dark: #115e59;
+      --accent: #b45309;
+      --danger: #b91c1c;
+      --danger-bg: #fff1f2;
+      --ok: #15803d;
+      --ok-bg: #ecfdf3;
+      --focus: #2563eb;
+      --shadow: 0 18px 45px rgba(20, 34, 51, .10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #eef7f6 0, #f6f7f9 260px),
+        var(--bg);
+      font-family: "Segoe UI", "Noto Sans TC", Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    button, input { font: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(230px, 300px) minmax(0, 1fr);
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, .82);
+      padding: 28px 22px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    main {
+      padding: 32px;
+      display: grid;
+      align-content: start;
+      gap: 22px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .brand h1 {
+      font-size: 1.35rem;
+      line-height: 1.25;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      color: var(--muted);
+      margin: 0;
+      font-size: .94rem;
+    }
+
+    .stats {
+      display: grid;
+      gap: 10px;
+      margin: 22px 0;
+    }
+
+    .stat {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .stat span:first-child {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .stat strong {
+      font-size: 1.05rem;
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .topic-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      font-size: .88rem;
+      color: var(--muted);
+      padding: 8px 0;
+      border-bottom: 1px solid #edf0f3;
+    }
+
+    .weak {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      max-width: 980px;
+    }
+
+    .mode-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .seg {
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: #fff;
+      min-height: 40px;
+      padding: 8px 13px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .seg.active {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+
+    .panel {
+      max-width: 980px;
+      background: var(--panel);
+      border: 1px solid rgba(216, 222, 230, .9);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .question {
+      padding: 28px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: #eef7f6;
+      color: var(--brand-dark);
+      font-weight: 700;
+      font-size: .82rem;
+    }
+
+    .question h2 {
+      font-size: clamp(1.15rem, 1.7vw, 1.55rem);
+      margin: 0;
+      line-height: 1.45;
+      letter-spacing: 0;
+    }
+
+    .hint {
+      border-left: 4px solid var(--accent);
+      background: #fff8ed;
+      padding: 10px 12px;
+      color: #6f3f06;
+      font-size: .94rem;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px 14px;
+      background: #fff;
+      cursor: pointer;
+      min-height: 58px;
+      align-items: start;
+    }
+
+    .option:hover {
+      border-color: #a9b5c3;
+      background: #fbfcfd;
+    }
+
+    .option input {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      accent-color: var(--brand);
+    }
+
+    .option.correct {
+      border-color: #86efac;
+      background: var(--ok-bg);
+    }
+
+    .option.incorrect {
+      border-color: #fecdd3;
+      background: var(--danger-bg);
+    }
+
+    .letter {
+      font-weight: 800;
+      color: var(--brand-dark);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      min-height: 44px;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .primary {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .primary:hover { background: var(--brand-dark); }
+
+    .secondary {
+      background: #e8edf2;
+      color: var(--ink);
+    }
+
+    .secondary:hover { background: #dce3ea; }
+
+    .ghost {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .feedback {
+      border-top: 1px solid var(--line);
+      padding: 0 28px 28px;
+      display: none;
+    }
+
+    .feedback.show {
+      display: grid;
+      gap: 14px;
+    }
+
+    .result {
+      border-radius: 8px;
+      padding: 14px;
+      font-weight: 800;
+    }
+
+    .result.ok {
+      background: var(--ok-bg);
+      color: var(--ok);
+    }
+
+    .result.bad {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .explain-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .explain {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .explain strong { display: block; margin-bottom: 4px; }
+
+    .review-box {
+      max-width: 980px;
+      padding: 20px;
+      display: none;
+    }
+
+    .review-box.show {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .95rem;
+      overflow-wrap: anywhere;
+    }
+
+    .mini-table th,
+    .mini-table td {
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+
+    @media (max-width: 780px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      main {
+        padding: 18px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .question,
+      .feedback {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <section class="brand">
+        <h1>資料科學期末互動練習</h1>
+        <p>多選題模式。答錯後會追問同概念的變形題。</p>
+      </section>
+
+      <section class="stats" aria-label="練習統計">
+        <div class="stat"><span>已作答</span><strong id="answered">0</strong></div>
+        <div class="stat"><span>正確率</span><strong id="accuracy">-</strong></div>
+        <div class="stat"><span>目前弱點</span><strong id="weakest">尚未累積</strong></div>
+      </section>
+
+      <section>
+        <h2 style="font-size:1rem;margin:0 0 10px;">概念弱點</h2>
+        <div class="topic-list" id="topicList"></div>
+      </section>
+    </aside>
+
+    <main>
+      <div class="toolbar">
+        <div class="mode-group" aria-label="練習模式">
+          <button class="seg active" id="adaptiveMode" type="button">自動針對弱點</button>
+          <button class="seg" id="randomMode" type="button">隨機練習</button>
+        </div>
+        <button class="btn ghost" id="resetBtn" type="button">重新開始</button>
+      </div>
+
+      <section class="panel question" id="questionPanel">
+        <div class="meta">
+          <span class="pill" id="topicPill">Topic</span>
+          <span id="sourceText"></span>
+        </div>
+        <h2 id="questionText"></h2>
+        <div class="hint" id="hintText"></div>
+        <form class="options" id="optionsForm"></form>
+        <div class="actions">
+          <button class="btn primary" id="submitBtn" type="button">送出答案</button>
+          <button class="btn secondary" id="skipBtn" type="button">跳過這題</button>
+        </div>
+      </section>
+
+      <section class="panel feedback" id="feedbackPanel">
+        <div class="result" id="resultBox"></div>
+        <div class="explain-list" id="explainList"></div>
+        <div class="actions">
+          <button class="btn primary" id="nextBtn" type="button">繼續練習</button>
+          <button class="btn secondary" id="reviewBtn" type="button">看本題觀念表</button>
+        </div>
+      </section>
+
+      <section class="panel review-box" id="reviewBox"></section>
+    </main>
+  </div>
+
+  <script>
+    const topics = {
+      chi: "Chi-square / p-value",
+      stat: "t-test / ANOVA",
+      tree: "Decision Tree",
+      ensemble: "Ensemble",
+      eval: "Recall / Precision / ROC",
+      project: "Feature Importance"
+    };
+
+    const conceptNotes = {
+      chi: [
+        ["Chi-square", "用於兩個類別變數是否 independent / dependent。"],
+        ["H0", "通常是兩個類別變數 independent。"],
+        ["p-value", "小於 alpha 時拒絕 H0；不是 H0 為真的機率，也不能推出因果。"]
+      ],
+      stat: [
+        ["t-test", "比較兩組平均數。"],
+        ["F-test", "比較變異數。"],
+        ["ANOVA", "比較三組以上平均數；Two-way ANOVA 可看兩個 factors 和 interaction。"]
+      ],
+      tree: [
+        ["Decision Tree", "透過 recursive splitting，把資料切得更純。"],
+        ["C5.0", "以 Entropy / Information Gain / Gain Ratio 為核心。"],
+        ["CART", "以 Gini impurity 為核心。"]
+      ],
+      ensemble: [
+        ["Bagging", "平行訓練多個模型，常用 bootstrap samples，降低 variance。"],
+        ["Random Forest", "Bagging + random feature selection + 多棵樹投票。"],
+        ["Boosting", "序列式訓練，後面的模型修正前面的錯。"]
+      ],
+      eval: [
+        ["Recall", "TP / (TP + FN)，重點是抓到真正 positive。"],
+        ["Precision", "TP / (TP + FP)，重點是預測 positive 的準確性。"],
+        ["ROC / AUC", "ROC 看不同 threshold；AUC 越大通常越好。"]
+      ],
+      project: [
+        ["Feature importance", "找出影響模型判斷的重要 input features，但不等於因果。"],
+        ["Overfitting", "Training 好但 testing 差，表示模型可能背訓練資料。"],
+        ["Final project", "不能只報 accuracy，要解釋指標、過度配適與重要變數。"]
+      ]
+    };
+
+    const questionBank = [
+      {
+        id: "chi-1",
+        topic: "chi",
+        source: "DS5_statistics.pdf",
+        prompt: "Regarding Chi-square test, which descriptions are correct? More than one correct answer.",
+        hint: "先判斷資料型態，再看 H0 和 observed/expected。",
+        options: [
+          ["A", "It is suitable for judging the relationship between two categorical variables.", true, "Chi-square test 的核心就是 categorical vs categorical。"],
+          ["B", "Its null hypothesis usually states that the two variables are independent.", true, "H0 通常是假設兩個類別變數 independent。"],
+          ["C", "It compares observed counts with expected counts.", true, "卡方檢定就是看 observed count 和 expected count 差多少。"],
+          ["D", "It is mainly used to compare the means of two groups.", false, "比較兩組平均數是 t-test，不是 Chi-square。"],
+          ["E", "A small p-value suggests that the two variables may be dependent.", true, "p-value 小表示拒絕 independent 的 H0，傾向認為有關。"]
+        ]
+      },
+      {
+        id: "chi-2",
+        topic: "chi",
+        source: "DS5_statistics.pdf",
+        prompt: "If the p-value of a Chi-square test is 0.01 and alpha is 0.05, which descriptions are correct?",
+        hint: "期中考很愛考 p-value 的錯誤解讀。",
+        options: [
+          ["A", "We reject H0.", true, "0.01 < 0.05，所以拒絕 H0。"],
+          ["B", "The result suggests the variables may be associated.", true, "拒絕 independent 的 H0，表示可能有關聯。"],
+          ["C", "The p-value means the probability that H0 is true is 0.01.", false, "p-value 不是 H0 為真的機率。"],
+          ["D", "The observed counts are sufficiently different from expected counts.", true, "p-value 小通常表示 observed 和 expected 差距不太像隨機造成。"],
+          ["E", "The test proves causality between the variables.", false, "統計關聯不等於因果。"]
+        ]
+      },
+      {
+        id: "chi-3",
+        topic: "chi",
+        source: "DS5_statistics.pdf",
+        prompt: "Which situations are suitable for Chi-square test? More than one correct answer.",
+        hint: "看到是否、類型、等級，通常要想到類別變數。",
+        options: [
+          ["A", "Gender vs purchase decision.", true, "性別和是否購買都是類別變數。"],
+          ["B", "Membership level vs renewal decision.", true, "會員等級與是否續約都是類別變數。"],
+          ["C", "Average income between two regions.", false, "平均收入是數值平均數，比較兩組通常是 t-test。"],
+          ["D", "Product category vs preferred payment method.", true, "產品類別和付款方式都是類別。"],
+          ["E", "Three materials and average productivity.", false, "三組以上平均數比較是 ANOVA。"]
+        ]
+      },
+      {
+        id: "stat-1",
+        topic: "stat",
+        source: "DS5_statistics.pdf",
+        prompt: "Regarding t-test and F-test, which descriptions are correct?",
+        hint: "t 看平均數，F 看變異數。",
+        options: [
+          ["A", "t-test can compare the means of two groups.", true, "t-test 的典型用途是比較兩組平均數。"],
+          ["B", "F-test can compare variances.", true, "F-test 常用來比較變異數。"],
+          ["C", "F-test is mainly used to compare two proportions.", false, "比例比較是 proportion test。"],
+          ["D", "Different variances may affect the t-test procedure.", true, "變異數是否相等會影響 t-test 選用版本。"],
+          ["E", "t-test is mainly used for categorical response variables.", false, "t-test 的 response 通常是數值。"]
+        ]
+      },
+      {
+        id: "stat-2",
+        topic: "stat",
+        source: "DS5_statistics.pdf",
+        prompt: "Regarding ANOVA, which descriptions are correct?",
+        hint: "ANOVA 是 t-test 的三組以上版本，但它問的是平均數。",
+        options: [
+          ["A", "ANOVA can compare the means of three or more groups.", true, "ANOVA 用來比較三組以上平均數。"],
+          ["B", "ANOVA compares between-group and within-group variation.", true, "ANOVA 的核心直覺就是組間 vs 組內變異。"],
+          ["C", "If ANOVA is significant, at least one group mean is different.", true, "顯著代表至少有一組平均數不同。"],
+          ["D", "ANOVA is mainly used for two categorical variables.", false, "兩個類別變數用 Chi-square。"],
+          ["E", "Larger between-group variation relative to within-group variation supports group differences.", true, "組間差異相對組內差異越大，越支持組別有差。"]
+        ]
+      },
+      {
+        id: "stat-3",
+        topic: "stat",
+        source: "DS5_statistics.pdf",
+        prompt: "Regarding two-way ANOVA and interaction, which descriptions are correct?",
+        hint: "Interaction 是 A 的效果會不會受 B 影響。",
+        options: [
+          ["A", "Two-way ANOVA considers two factors.", true, "Two-way ANOVA 同時看兩個 factors。"],
+          ["B", "Interaction means one factor's effect may depend on another factor.", true, "這就是 interaction 的核心意思。"],
+          ["C", "Parallel lines in an interaction plot usually suggest strong interaction.", false, "線平行通常表示 interaction 不明顯。"],
+          ["D", "Two-way ANOVA can test main effects and interaction effects.", true, "它可看 main effects，也可看 interaction。"],
+          ["E", "Interaction should always be ignored if main effects are significant.", false, "有 interaction 時不能只看 main effects。"]
+        ]
+      },
+      {
+        id: "tree-1",
+        topic: "tree",
+        source: "DS7_advanced_classifier.pdf",
+        prompt: "Regarding decision trees, which descriptions are correct?",
+        hint: "決策樹是 recursive if-then，不保證不 overfit。",
+        options: [
+          ["A", "A decision tree can be interpreted as a sequence of if-then rules.", true, "決策樹很容易轉成 IF-THEN 規則。"],
+          ["B", "Recursive splitting is used to grow a tree.", true, "樹會重複切分資料。"],
+          ["C", "A decision tree always avoids overfitting automatically.", false, "樹太深很容易 overfit。"],
+          ["D", "A leaf node represents a final prediction or class.", true, "leaf node 是最後分類/預測。"],
+          ["E", "A deeper tree may become too complex and overfit.", true, "深樹可能太複雜，training 好但 testing 差。"]
+        ]
+      },
+      {
+        id: "tree-2",
+        topic: "tree",
+        source: "DS7_advanced_classifier.pdf",
+        prompt: "Regarding Gini impurity and entropy, which descriptions are correct?",
+        hint: "兩者都是混亂程度，越低越純。",
+        options: [
+          ["A", "Both can measure the impurity of a node.", true, "Gini 和 Entropy 都衡量節點混亂。"],
+          ["B", "A pure node has low impurity.", true, "越純 impurity 越低。"],
+          ["C", "In binary classification, maximum Gini impurity is usually 0.5.", true, "二分類最混亂時 Gini 約 0.5。"],
+          ["D", "In binary classification, maximum entropy is usually 1.", true, "二分類最混亂時 entropy 為 1。"],
+          ["E", "Higher impurity means the node is more pure.", false, "剛好相反，高 impurity 表示更混亂。"]
+        ]
+      },
+      {
+        id: "tree-3",
+        topic: "tree",
+        source: "DS7_advanced_classifier.pdf",
+        prompt: "Regarding C5.0 and CART, which descriptions are correct?",
+        hint: "這題老師逐字稿明確說期末可能考。",
+        options: [
+          ["A", "C5.0 is based on entropy-related measures.", true, "C5.0 對應 entropy / information gain / gain ratio。"],
+          ["B", "CART is based on Gini impurity.", true, "CART 對應 Gini impurity。"],
+          ["C", "C5.0 and CART use exactly the same splitting criterion.", false, "兩者切分標準不同。"],
+          ["D", "Information gain and gain ratio are related to entropy.", true, "Information gain / gain ratio 都和 entropy 系列有關。"],
+          ["E", "Gini impurity is the main concept emphasized for CART.", true, "CART 的核心是 Gini。"]
+        ]
+      },
+      {
+        id: "tree-4",
+        topic: "tree",
+        source: "DS7_advanced_classifier.pdf",
+        prompt: "Regarding information gain and gain ratio, which descriptions are correct?",
+        hint: "Information gain 看切分後混亂下降多少。",
+        options: [
+          ["A", "Information gain measures the reduction in entropy after splitting.", true, "切分前後 entropy 降低量就是 information gain。"],
+          ["B", "A larger information gain means the split reduces more impurity.", true, "gain 越大代表切分更有用。"],
+          ["C", "Gain ratio adjusts the bias toward many-valued splits.", true, "Gain ratio 修正 information gain 偏好多分支的問題。"],
+          ["D", "Information gain is unrelated to entropy.", false, "Information gain 和 entropy 直接相關。"],
+          ["E", "Gain ratio is mainly used to increase impurity after splitting.", false, "目標是降低 impurity，不是增加。"]
+        ]
+      },
+      {
+        id: "ensemble-1",
+        topic: "ensemble",
+        source: "DS7_advanced_classifier.pdf",
+        prompt: "Regarding bagging, which descriptions are correct?",
+        hint: "Bagging 是平行，不是逐步修錯。",
+        options: [
+          ["A", "Bagging trains multiple models using bootstrap samples.", true, "Bagging 會用 bootstrap samples 訓練多個模型。"],
+          ["B", "Bagging models are usually trained in parallel.", true, "Bagging 是平行式 ensemble。"],
+          ["C", "Bagging aims to reduce instability or variance.", true, "它可降低單一模型不穩定。"],
+          ["D", "Bagging trains models sequentially so later models correct earlier errors.", false, "這是 boosting。"],
+          ["E", "Bagging can combine predictions by voting or averaging.", true, "分類可投票，回歸可平均。"]
+        ]
+      },
+      {
+        id: "ensemble-2",
+        topic: "ensemble",
+        source: "DS7_advanced_classifier.pdf",
+        prompt: "Regarding random forest, which descriptions are correct?",
+        hint: "Random Forest = Bagging + 隨機選變數。",
+        options: [
+          ["A", "It builds many decision trees.", true, "森林就是很多棵樹。"],
+          ["B", "It uses bootstrap sampling.", true, "Random Forest 通常建立在 bagging 概念上。"],
+          ["C", "It randomly selects a subset of features when splitting nodes.", true, "這是 Random Forest 與一般 bagging trees 的重要差異。"],
+          ["D", "It is exactly the same as a single decision tree.", false, "Random Forest 是 ensemble，不是單棵樹。"],
+          ["E", "It can provide feature importance.", true, "Random Forest 可輸出 feature importance。"]
+        ]
+      },
+      {
+        id: "ensemble-3",
+        topic: "ensemble",
+        source: "DS7_advanced_classifier.pdf",
+        prompt: "Regarding boosting, which descriptions are correct?",
+        hint: "Boosting 是序列式修正錯誤。",
+        options: [
+          ["A", "Boosting trains models sequentially.", true, "Boosting 一個接一個訓練。"],
+          ["B", "Later models try to correct earlier mistakes.", true, "後面的模型修正前面的錯。"],
+          ["C", "AdaBoost increases weights of misclassified samples.", true, "AdaBoost 會讓分錯樣本變重要。"],
+          ["D", "Boosting is identical to bagging.", false, "Bagging 平行；Boosting 序列。"],
+          ["E", "Gradient boosting improves the model step by step based on errors.", true, "Gradient Boosting 逐步修正錯誤方向。"]
+        ]
+      },
+      {
+        id: "eval-1",
+        topic: "eval",
+        source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
+        prompt: "Regarding confusion matrix, which descriptions are correct?",
+        hint: "先分清楚 predicted 和 actual。",
+        options: [
+          ["A", "TP means predicted positive and actually positive.", true, "TP 是預測 positive，實際也 positive。"],
+          ["B", "FP means predicted positive but actually negative.", true, "FP 是誤抓。"],
+          ["C", "FN means predicted negative but actually positive.", true, "FN 是漏抓。"],
+          ["D", "TN means predicted positive and actually positive.", false, "這是 TP，不是 TN。"],
+          ["E", "Confusion matrix can be used to calculate recall and precision.", true, "Recall 和 precision 都從四格表來。"]
+        ]
+      },
+      {
+        id: "eval-2",
+        topic: "eval",
+        source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
+        prompt: "Regarding recall, which descriptions are correct?",
+        hint: "Recall 的分母是 actual positives。",
+        options: [
+          ["A", "Recall = TP / (TP + FN).", true, "Recall 的分母是真正 positive。"],
+          ["B", "Recall focuses on how many actual positives are captured.", true, "它問真正 positive 裡抓到多少。"],
+          ["C", "Recall is important when missing positive cases is costly.", true, "漏掉 positive 很貴時，recall 很重要。"],
+          ["D", "Recall = TP / (TP + FP).", false, "這是 precision。"],
+          ["E", "High recall means the model does not miss many actual positives.", true, "高 recall 表示 FN 少。"]
+        ]
+      },
+      {
+        id: "eval-3",
+        topic: "eval",
+        source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
+        prompt: "Regarding precision, which descriptions are correct?",
+        hint: "Precision 的分母是 predicted positives。",
+        options: [
+          ["A", "Precision = TP / (TP + FP).", true, "Precision 的分母是預測 positive。"],
+          ["B", "Precision focuses on how many predicted positives are truly positive.", true, "它問被模型抓出來的人有多少真的對。"],
+          ["C", "Precision is important when false positives are costly.", true, "誤抓很貴時，precision 很重要。"],
+          ["D", "Precision = TP / (TP + FN).", false, "這是 recall。"],
+          ["E", "High precision means fewer predicted positives are wrong.", true, "高 precision 表示 FP 少。"]
+        ]
+      },
+      {
+        id: "eval-4",
+        topic: "eval",
+        source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
+        prompt: "Regarding accuracy, which descriptions are correct?",
+        hint: "類別不平衡時，accuracy 會騙人。",
+        options: [
+          ["A", "Accuracy can be misleading in imbalanced data.", true, "少數類很少時，全部猜多數類也可能高 accuracy。"],
+          ["B", "A model can have high accuracy but poor recall for the minority class.", true, "這是 class imbalance 的典型陷阱。"],
+          ["C", "Accuracy alone is always sufficient for classification evaluation.", false, "不能只看 accuracy。"],
+          ["D", "Recall and precision provide additional information beyond accuracy.", true, "它們能補足 accuracy 的盲點。"],
+          ["E", "If positive class is rare, predicting all samples as negative may still produce high accuracy.", true, "但這種模型對抓 positive 沒用。"]
+        ]
+      },
+      {
+        id: "eval-5",
+        topic: "eval",
+        source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
+        prompt: "Regarding ROC and AUC, which descriptions are correct?",
+        hint: "ROC 跟 threshold 有關，AUC 是整體辨識能力。",
+        options: [
+          ["A", "ROC evaluates model performance under different thresholds.", true, "ROC 會看不同 threshold 的表現。"],
+          ["B", "AUC summarizes the area under the ROC curve.", true, "AUC 是 ROC 曲線下的面積。"],
+          ["C", "A larger AUC usually indicates better discrimination ability.", true, "AUC 越大，通常區分能力越好。"],
+          ["D", "ROC is unrelated to threshold choice.", false, "ROC 正是看不同 threshold。"],
+          ["E", "ROC considers the trade-off between TPR and FPR.", true, "ROC 看 TPR 與 FPR 的取捨。"]
+        ]
+      },
+      {
+        id: "eval-6",
+        topic: "eval",
+        source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
+        prompt: "Regarding classification threshold, which descriptions are correct?",
+        hint: "Threshold 一變，四格表就會變。",
+        options: [
+          ["A", "Changing threshold can change TP, FP, FN, and TN.", true, "threshold 會影響分類結果。"],
+          ["B", "Lowering threshold may increase recall.", true, "門檻降低會抓更多 positive，recall 可能上升。"],
+          ["C", "Raising threshold usually makes the model more conservative in predicting positives.", true, "門檻升高就比較少判 positive。"],
+          ["D", "Threshold has no effect on recall or precision.", false, "threshold 會影響 recall 和 precision。"],
+          ["E", "Threshold selection can depend on business cost.", true, "商業成本會影響選擇。"]
+        ]
+      },
+      {
+        id: "project-1",
+        topic: "project",
+        source: "assignment3.R / telecom_churn_assignment",
+        prompt: "Regarding feature importance, which descriptions are correct?",
+        hint: "重要變數不等於因果，但可支援解釋。",
+        options: [
+          ["A", "It helps identify influential input variables.", true, "Feature importance 告訴你哪些 X 對模型重要。"],
+          ["B", "It can support managerial interpretation of the model.", true, "可用來轉成管理意涵。"],
+          ["C", "Comparing C5.0, Random Forest, and XGBoost can make conclusions more convincing.", true, "不同模型都認為重要，解釋較穩。"],
+          ["D", "Feature importance proves causality.", false, "重要性不等於因果。"],
+          ["E", "Feature importance is related to final project interpretation.", true, "5/27 老師把它和作業/期末專案連在一起。"]
+        ]
+      },
+      {
+        id: "project-2",
+        topic: "project",
+        source: "assignment3.R / telecom_churn_assignment",
+        prompt: "Regarding overfitting, which descriptions are correct?",
+        hint: "Training 好、testing 差，是典型 overfitting。",
+        options: [
+          ["A", "The model is too complex.", true, "過度複雜是 overfitting 常見原因。"],
+          ["B", "Training performance is usually good.", true, "模型把訓練資料背得很好。"],
+          ["C", "Testing performance is poor.", true, "遇到新資料就差。"],
+          ["D", "The model generalizes well to unseen data.", false, "這剛好不是 overfitting。"],
+          ["E", "A very deep decision tree may overfit.", true, "樹太深常 overfit。"]
+        ]
+      },
+      {
+        id: "project-3",
+        topic: "project",
+        source: "assignment3.R / final project",
+        prompt: "Regarding final project model interpretation, which descriptions are correct?",
+        hint: "期末專案不能只報 accuracy。",
+        options: [
+          ["A", "It is enough to report only accuracy.", false, "分類模型還要看 recall、precision、AUC 等。"],
+          ["B", "We should explain the meaning of important input features.", true, "欄位意義與重要變數都要解釋。"],
+          ["C", "We should compare model performance using recall, precision, and AUC.", true, "這些是分類評估重點。"],
+          ["D", "We should check whether the model may overfit.", true, "要看 training/testing 是否差距太大。"],
+          ["E", "We can discuss managerial implications based on feature importance.", true, "重要變數可以連到決策建議。"]
+        ]
+      },
+      {
+        id: "mix-1",
+        topic: "stat",
+        source: "DS5_statistics.pdf",
+        prompt: "Which method is suitable for each situation? More than one correct answer.",
+        hint: "這是期中考很像的跨概念方法選擇題。",
+        options: [
+          ["A", "Use Chi-square test to examine association between gender and purchase decision.", true, "類別 vs 類別。"],
+          ["B", "Use t-test to compare average return between two markets.", true, "兩組平均數。"],
+          ["C", "Use ANOVA to compare average productivity among three materials.", true, "三組以上平均數。"],
+          ["D", "Use confusion matrix to compare two group means.", false, "Confusion matrix 評估分類模型，不比平均數。"],
+          ["E", "Use feature importance to explain key input variables in a final project.", true, "Feature importance 用於模型解釋。"]
+        ]
+      }
+    ];
+
+    const state = {
+      answered: 0,
+      correct: 0,
+      current: null,
+      mode: "adaptive",
+      history: [],
+      weak: Object.fromEntries(Object.keys(topics).map((key) => [key, 0])),
+      lastWrongTopic: null,
+      locked: false
+    };
+
+    const els = {
+      answered: document.getElementById("answered"),
+      accuracy: document.getElementById("accuracy"),
+      weakest: document.getElementById("weakest"),
+      topicList: document.getElementById("topicList"),
+      adaptiveMode: document.getElementById("adaptiveMode"),
+      randomMode: document.getElementById("randomMode"),
+      resetBtn: document.getElementById("resetBtn"),
+      topicPill: document.getElementById("topicPill"),
+      sourceText: document.getElementById("sourceText"),
+      questionText: document.getElementById("questionText"),
+      hintText: document.getElementById("hintText"),
+      optionsForm: document.getElementById("optionsForm"),
+      submitBtn: document.getElementById("submitBtn"),
+      skipBtn: document.getElementById("skipBtn"),
+      feedbackPanel: document.getElementById("feedbackPanel"),
+      resultBox: document.getElementById("resultBox"),
+      explainList: document.getElementById("explainList"),
+      nextBtn: document.getElementById("nextBtn"),
+      reviewBtn: document.getElementById("reviewBtn"),
+      reviewBox: document.getElementById("reviewBox")
+    };
+
+    function shuffle(items) {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function chooseQuestion() {
+      const recent = new Set(state.history.slice(-5));
+      let pool = questionBank.filter((q) => !recent.has(q.id));
+
+      if (pool.length === 0) pool = [...questionBank];
+
+      if (state.mode === "adaptive") {
+        const weakEntries = Object.entries(state.weak).sort((a, b) => b[1] - a[1]);
+        const target = state.lastWrongTopic || (weakEntries[0][1] > 0 ? weakEntries[0][0] : null);
+        if (target) {
+          const targeted = pool.filter((q) => q.topic === target);
+          if (targeted.length) return targeted[Math.floor(Math.random() * targeted.length)];
+        }
+      }
+
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function renderQuestion(question) {
+      state.current = question;
+      state.locked = false;
+      state.history.push(question.id);
+      els.topicPill.textContent = topics[question.topic];
+      els.sourceText.textContent = question.source;
+      els.questionText.textContent = question.prompt;
+      els.hintText.textContent = question.hint;
+      els.optionsForm.innerHTML = "";
+      els.feedbackPanel.classList.remove("show");
+      els.reviewBox.classList.remove("show");
+      els.submitBtn.disabled = false;
+
+      question.options.forEach(([letter, text]) => {
+        const label = document.createElement("label");
+        label.className = "option";
+        label.innerHTML = `
+          <input type="checkbox" name="answer" value="${letter}" />
+          <span><span class="letter">${letter}.</span> ${text}</span>
+        `;
+        els.optionsForm.appendChild(label);
+      });
+    }
+
+    function selectedLetters() {
+      return [...els.optionsForm.querySelectorAll("input:checked")].map((input) => input.value);
+    }
+
+    function arraysEqualSet(a, b) {
+      if (a.length !== b.length) return false;
+      const set = new Set(a);
+      return b.every((item) => set.has(item));
+    }
+
+    function submitAnswer() {
+      if (state.locked) return;
+      const question = state.current;
+      const selected = selectedLetters();
+      if (!selected.length) {
+        els.hintText.textContent = "這題是多選題，至少選一個選項再送出。";
+        return;
+      }
+
+      const correct = question.options.filter((opt) => opt[2]).map((opt) => opt[0]);
+      const isCorrect = arraysEqualSet(selected, correct);
+      state.locked = true;
+      state.answered += 1;
+      if (isCorrect) {
+        state.correct += 1;
+        if (state.weak[question.topic] > 0) state.weak[question.topic] -= 1;
+        state.lastWrongTopic = null;
+      } else {
+        state.weak[question.topic] += 1;
+        state.lastWrongTopic = question.topic;
+      }
+
+      markOptions(selected);
+      renderFeedback(question, selected, correct, isCorrect);
+      updateStats();
+    }
+
+    function markOptions(selected) {
+      const question = state.current;
+      const labels = [...els.optionsForm.querySelectorAll(".option")];
+      labels.forEach((label, index) => {
+        const [letter, , answer] = question.options[index];
+        const wasSelected = selected.includes(letter);
+        const input = label.querySelector("input");
+        input.disabled = true;
+        if (answer) label.classList.add("correct");
+        if (wasSelected && !answer) label.classList.add("incorrect");
+      });
+    }
+
+    function renderFeedback(question, selected, correct, isCorrect) {
+      els.feedbackPanel.classList.add("show");
+      els.resultBox.className = `result ${isCorrect ? "ok" : "bad"}`;
+      els.resultBox.textContent = isCorrect
+        ? "答對了。這題的判斷方向是正確的。"
+        : `答錯了。正確答案是 ${correct.join(", ")}。下一題會優先用「${topics[question.topic]}」換一種方式考你。`;
+
+      els.explainList.innerHTML = "";
+      question.options.forEach(([letter, text, answer, reason]) => {
+        const picked = selected.includes(letter);
+        const needsExplain = answer || picked;
+        if (!needsExplain) return;
+        const block = document.createElement("div");
+        block.className = "explain";
+        const status = answer ? "正確敘述" : "錯誤陷阱";
+        const pickedText = picked ? "你有選" : "你漏選";
+        block.innerHTML = `<strong>${letter}. ${status}｜${pickedText}</strong><div>${text}</div><div>${reason}</div>`;
+        els.explainList.appendChild(block);
+      });
+
+      els.nextBtn.textContent = isCorrect ? "繼續練習" : "用同概念換題再練";
+    }
+
+    function renderReview() {
+      const topic = state.current.topic;
+      const rows = conceptNotes[topic].map(([key, note]) => `<tr><th>${key}</th><td>${note}</td></tr>`).join("");
+      els.reviewBox.innerHTML = `
+        <h2 style="font-size:1.05rem;margin:0;">${topics[topic]} 觀念表</h2>
+        <table class="mini-table"><tbody>${rows}</tbody></table>
+      `;
+      els.reviewBox.classList.toggle("show");
+    }
+
+    function updateStats() {
+      els.answered.textContent = String(state.answered);
+      els.accuracy.textContent = state.answered ? `${Math.round((state.correct / state.answered) * 100)}%` : "-";
+      const sorted = Object.entries(state.weak).sort((a, b) => b[1] - a[1]);
+      els.weakest.textContent = sorted[0][1] > 0 ? topics[sorted[0][0]] : "尚未累積";
+      els.topicList.innerHTML = "";
+      Object.entries(topics).forEach(([key, label]) => {
+        const row = document.createElement("div");
+        row.className = "topic-row";
+        const count = state.weak[key];
+        row.innerHTML = `<span>${label}</span><strong class="${count ? "weak" : ""}">${count}</strong>`;
+        els.topicList.appendChild(row);
+      });
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      els.adaptiveMode.classList.toggle("active", mode === "adaptive");
+      els.randomMode.classList.toggle("active", mode === "random");
+    }
+
+    function reset() {
+      state.answered = 0;
+      state.correct = 0;
+      state.history = [];
+      state.lastWrongTopic = null;
+      Object.keys(state.weak).forEach((key) => { state.weak[key] = 0; });
+      updateStats();
+      renderQuestion(chooseQuestion());
+    }
+
+    els.submitBtn.addEventListener("click", submitAnswer);
+    els.skipBtn.addEventListener("click", () => renderQuestion(chooseQuestion()));
+    els.nextBtn.addEventListener("click", () => renderQuestion(chooseQuestion()));
+    els.reviewBtn.addEventListener("click", renderReview);
+    els.adaptiveMode.addEventListener("click", () => setMode("adaptive"));
+    els.randomMode.addEventListener("click", () => setMode("random"));
+    els.resetBtn.addEventListener("click", reset);
+
+    updateStats();
+    renderQuestion(chooseQuestion());
+  </script>
+</body>
+</html>
