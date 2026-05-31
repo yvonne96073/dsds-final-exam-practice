@@ -482,7 +482,6 @@
           <span id="sourceText"></span>
         </div>
         <h2 id="questionText"></h2>
-        <div class="hint" id="hintText"></div>
         <form class="options" id="optionsForm"></form>
         <div class="confidence" id="confidencePanel">
           <strong>這題你的把握度？</strong>
@@ -561,7 +560,6 @@
         topic: "chi",
         source: "DS5_statistics.pdf",
         prompt: "Regarding Chi-square test, which descriptions are correct? More than one correct answer.",
-        hint: "先判斷資料型態，再看 H0 和 observed/expected。",
         options: [
           ["A", "It is suitable for judging the relationship between two categorical variables.", true, "Chi-square test 的核心就是 categorical vs categorical。"],
           ["B", "Its null hypothesis usually states that the two variables are independent.", true, "H0 通常是假設兩個類別變數 independent。"],
@@ -575,7 +573,6 @@
         topic: "chi",
         source: "DS5_statistics.pdf",
         prompt: "If the p-value of a Chi-square test is 0.01 and alpha is 0.05, which descriptions are correct?",
-        hint: "期中考很愛考 p-value 的錯誤解讀。",
         options: [
           ["A", "We reject H0.", true, "0.01 < 0.05，所以拒絕 H0。"],
           ["B", "The result suggests the variables may be associated.", true, "拒絕 independent 的 H0，表示可能有關聯。"],
@@ -589,7 +586,6 @@
         topic: "chi",
         source: "DS5_statistics.pdf",
         prompt: "Which situations are suitable for Chi-square test? More than one correct answer.",
-        hint: "看到是否、類型、等級，通常要想到類別變數。",
         options: [
           ["A", "Gender vs purchase decision.", true, "性別和是否購買都是類別變數。"],
           ["B", "Membership level vs renewal decision.", true, "會員等級與是否續約都是類別變數。"],
@@ -603,7 +599,6 @@
         topic: "stat",
         source: "DS5_statistics.pdf",
         prompt: "Regarding t-test and F-test, which descriptions are correct?",
-        hint: "t 看平均數，F 看變異數。",
         options: [
           ["A", "t-test can compare the means of two groups.", true, "t-test 的典型用途是比較兩組平均數。"],
           ["B", "F-test can compare variances.", true, "F-test 常用來比較變異數。"],
@@ -617,7 +612,6 @@
         topic: "stat",
         source: "DS5_statistics.pdf",
         prompt: "Regarding ANOVA, which descriptions are correct?",
-        hint: "ANOVA 是 t-test 的三組以上版本，但它問的是平均數。",
         options: [
           ["A", "ANOVA can compare the means of three or more groups.", true, "ANOVA 用來比較三組以上平均數。"],
           ["B", "ANOVA compares between-group and within-group variation.", true, "ANOVA 的核心直覺就是組間 vs 組內變異。"],
@@ -631,7 +625,6 @@
         topic: "stat",
         source: "DS5_statistics.pdf",
         prompt: "Regarding two-way ANOVA and interaction, which descriptions are correct?",
-        hint: "Interaction 是 A 的效果會不會受 B 影響。",
         options: [
           ["A", "Two-way ANOVA considers two factors.", true, "Two-way ANOVA 同時看兩個 factors。"],
           ["B", "Interaction means one factor's effect may depend on another factor.", true, "這就是 interaction 的核心意思。"],
@@ -645,7 +638,6 @@
         topic: "tree",
         source: "DS7_advanced_classifier.pdf",
         prompt: "Regarding decision trees, which descriptions are correct?",
-        hint: "決策樹是 recursive if-then，不保證不 overfit。",
         options: [
           ["A", "A decision tree can be interpreted as a sequence of if-then rules.", true, "決策樹很容易轉成 IF-THEN 規則。"],
           ["B", "Recursive splitting is used to grow a tree.", true, "樹會重複切分資料。"],
@@ -659,7 +651,6 @@
         topic: "tree",
         source: "DS7_advanced_classifier.pdf",
         prompt: "Regarding Gini impurity and entropy, which descriptions are correct?",
-        hint: "兩者都是混亂程度，越低越純。",
         options: [
           ["A", "Both can measure the impurity of a node.", true, "Gini 和 Entropy 都衡量節點混亂。"],
           ["B", "A pure node has low impurity.", true, "越純 impurity 越低。"],
@@ -673,7 +664,6 @@
         topic: "tree",
         source: "DS7_advanced_classifier.pdf",
         prompt: "Regarding C5.0 and CART, which descriptions are correct?",
-        hint: "這題老師逐字稿明確說期末可能考。",
         options: [
           ["A", "C5.0 is based on entropy-related measures.", true, "C5.0 對應 entropy / information gain / gain ratio。"],
           ["B", "CART is based on Gini impurity.", true, "CART 對應 Gini impurity。"],
@@ -687,7 +677,6 @@
         topic: "tree",
         source: "DS7_advanced_classifier.pdf",
         prompt: "Regarding information gain and gain ratio, which descriptions are correct?",
-        hint: "Information gain 看切分後混亂下降多少。",
         options: [
           ["A", "Information gain measures the reduction in entropy after splitting.", true, "切分前後 entropy 降低量就是 information gain。"],
           ["B", "A larger information gain means the split reduces more impurity.", true, "gain 越大代表切分更有用。"],
@@ -701,7 +690,6 @@
         topic: "ensemble",
         source: "DS7_advanced_classifier.pdf",
         prompt: "Regarding bagging, which descriptions are correct?",
-        hint: "Bagging 是平行，不是逐步修錯。",
         options: [
           ["A", "Bagging trains multiple models using bootstrap samples.", true, "Bagging 會用 bootstrap samples 訓練多個模型。"],
           ["B", "Bagging models are usually trained in parallel.", true, "Bagging 是平行式 ensemble。"],
@@ -715,7 +703,6 @@
         topic: "ensemble",
         source: "DS7_advanced_classifier.pdf",
         prompt: "Regarding random forest, which descriptions are correct?",
-        hint: "Random Forest = Bagging + 隨機選變數。",
         options: [
           ["A", "It builds many decision trees.", true, "森林就是很多棵樹。"],
           ["B", "It uses bootstrap sampling.", true, "Random Forest 通常建立在 bagging 概念上。"],
@@ -729,7 +716,6 @@
         topic: "ensemble",
         source: "DS7_advanced_classifier.pdf",
         prompt: "Regarding boosting, which descriptions are correct?",
-        hint: "Boosting 是序列式修正錯誤。",
         options: [
           ["A", "Boosting trains models sequentially.", true, "Boosting 一個接一個訓練。"],
           ["B", "Later models try to correct earlier mistakes.", true, "後面的模型修正前面的錯。"],
@@ -743,7 +729,6 @@
         topic: "eval",
         source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
         prompt: "Regarding confusion matrix, which descriptions are correct?",
-        hint: "先分清楚 predicted 和 actual。",
         options: [
           ["A", "TP means predicted positive and actually positive.", true, "TP 是預測 positive，實際也 positive。"],
           ["B", "FP means predicted positive but actually negative.", true, "FP 是誤抓。"],
@@ -757,7 +742,6 @@
         topic: "eval",
         source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
         prompt: "Regarding recall, which descriptions are correct?",
-        hint: "Recall 的分母是 actual positives。",
         options: [
           ["A", "Recall = TP / (TP + FN).", true, "Recall 的分母是真正 positive。"],
           ["B", "Recall focuses on how many actual positives are captured.", true, "它問真正 positive 裡抓到多少。"],
@@ -771,7 +755,6 @@
         topic: "eval",
         source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
         prompt: "Regarding precision, which descriptions are correct?",
-        hint: "Precision 的分母是 predicted positives。",
         options: [
           ["A", "Precision = TP / (TP + FP).", true, "Precision 的分母是預測 positive。"],
           ["B", "Precision focuses on how many predicted positives are truly positive.", true, "它問被模型抓出來的人有多少真的對。"],
@@ -785,7 +768,6 @@
         topic: "eval",
         source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
         prompt: "Regarding accuracy, which descriptions are correct?",
-        hint: "類別不平衡時，accuracy 會騙人。",
         options: [
           ["A", "Accuracy can be misleading in imbalanced data.", true, "少數類很少時，全部猜多數類也可能高 accuracy。"],
           ["B", "A model can have high accuracy but poor recall for the minority class.", true, "這是 class imbalance 的典型陷阱。"],
@@ -799,7 +781,6 @@
         topic: "eval",
         source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
         prompt: "Regarding ROC and AUC, which descriptions are correct?",
-        hint: "ROC 跟 threshold 有關，AUC 是整體辨識能力。",
         options: [
           ["A", "ROC evaluates model performance under different thresholds.", true, "ROC 會看不同 threshold 的表現。"],
           ["B", "AUC summarizes the area under the ROC curve.", true, "AUC 是 ROC 曲線下的面積。"],
@@ -813,7 +794,6 @@
         topic: "eval",
         source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
         prompt: "Regarding classification threshold, which descriptions are correct?",
-        hint: "Threshold 一變，四格表就會變。",
         options: [
           ["A", "Changing threshold can change TP, FP, FN, and TN.", true, "threshold 會影響分類結果。"],
           ["B", "Lowering threshold may increase recall.", true, "門檻降低會抓更多 positive，recall 可能上升。"],
@@ -827,7 +807,6 @@
         topic: "project",
         source: "assignment3.R / telecom_churn_assignment",
         prompt: "Regarding feature importance, which descriptions are correct?",
-        hint: "重要變數不等於因果，但可支援解釋。",
         options: [
           ["A", "It helps identify influential input variables.", true, "Feature importance 告訴你哪些 X 對模型重要。"],
           ["B", "It can support managerial interpretation of the model.", true, "可用來轉成管理意涵。"],
@@ -841,7 +820,6 @@
         topic: "project",
         source: "assignment3.R / telecom_churn_assignment",
         prompt: "Regarding overfitting, which descriptions are correct?",
-        hint: "Training 好、testing 差，是典型 overfitting。",
         options: [
           ["A", "The model is too complex.", true, "過度複雜是 overfitting 常見原因。"],
           ["B", "Training performance is usually good.", true, "模型把訓練資料背得很好。"],
@@ -855,7 +833,6 @@
         topic: "project",
         source: "assignment3.R / final project",
         prompt: "Regarding final project model interpretation, which descriptions are correct?",
-        hint: "期末專案不能只報 accuracy。",
         options: [
           ["A", "It is enough to report only accuracy.", false, "分類模型還要看 recall、precision、AUC 等。"],
           ["B", "We should explain the meaning of important input features.", true, "欄位意義與重要變數都要解釋。"],
@@ -869,7 +846,6 @@
         topic: "stat",
         source: "DS5_statistics.pdf",
         prompt: "Which method is suitable for each situation? More than one correct answer.",
-        hint: "這是期中考很像的跨概念方法選擇題。",
         options: [
           ["A", "Use Chi-square test to examine association between gender and purchase decision.", true, "類別 vs 類別。"],
           ["B", "Use t-test to compare average return between two markets.", true, "兩組平均數。"],
@@ -918,7 +894,6 @@
       topicPill: document.getElementById("topicPill"),
       sourceText: document.getElementById("sourceText"),
       questionText: document.getElementById("questionText"),
-      hintText: document.getElementById("hintText"),
       optionsForm: document.getElementById("optionsForm"),
       confidencePanel: document.getElementById("confidencePanel"),
       submitBtn: document.getElementById("submitBtn"),
@@ -990,7 +965,6 @@
       els.topicPill.textContent = topics[question.topic];
       els.sourceText.textContent = question.source;
       els.questionText.textContent = question.prompt;
-      els.hintText.textContent = question.hint;
       els.optionsForm.innerHTML = "";
       els.feedbackPanel.classList.remove("show");
       els.reviewBox.classList.remove("show");
@@ -1066,7 +1040,11 @@
       const question = state.current;
       const selected = selectedLetters();
       if (!selected.length) {
-        els.hintText.textContent = "這題是多選題，至少選一個選項再送出。";
+        els.resultBox.textContent = "這題是多選題，至少選一個選項再送出。";
+        els.resultBox.className = "result bad";
+        els.diagnosisBox.innerHTML = "";
+        els.explainList.innerHTML = "";
+        els.feedbackPanel.classList.add("show");
         return;
       }
 
