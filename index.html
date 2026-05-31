@@ -458,12 +458,12 @@
       <div class="toolbar">
         <div class="mode-area">
           <div class="mode-group" aria-label="練習模式">
-            <button class="seg active" id="adaptiveMode" type="button">平常練習</button>
+            <button class="seg active" id="adaptiveMode" type="button">循序練習</button>
             <button class="seg" id="weakMode" type="button">補弱點</button>
             <button class="seg" id="randomMode" type="button">隨機刷題</button>
             <button class="seg" id="examMode" type="button">模擬考</button>
           </div>
-          <div class="mode-help" id="modeHelp">平常練習：會混合出題，但答錯後會自動追問同概念。</div>
+          <div class="mode-help" id="modeHelp">循序練習：照課程順序複習，答錯才插入同概念追問。</div>
         </div>
         <button class="btn ghost" id="resetBtn" type="button">重新開始</button>
       </div>
@@ -512,6 +512,8 @@
       eval: "Recall / Precision / ROC",
       project: "Feature Importance"
     };
+
+    const topicOrder = ["chi", "stat", "tree", "ensemble", "eval", "project"];
 
     const conceptNotes = {
       chi: [
@@ -858,6 +860,7 @@
       examQueue: [],
       examIndex: 0,
       examTotal: 20,
+      studyCursor: 0,
       weak: Object.fromEntries(Object.keys(topics).map((key) => [key, 0])),
       mistakes: {
         formula: 0,
@@ -914,7 +917,7 @@
         return state.examQueue[state.examIndex];
       }
 
-      if (state.dueQueue.length && state.mode !== "random") {
+      if (state.dueQueue.length && state.mode === "adaptive") {
         const target = state.dueQueue.shift();
         const candidates = questionBank.filter((q) => q.topic === target && !state.history.slice(-3).includes(q.id));
         if (candidates.length) return candidates[Math.floor(Math.random() * candidates.length)];
@@ -934,9 +937,9 @@
       }
 
       if (state.mode === "adaptive") {
-        const weakEntries = Object.entries(state.weak).sort((a, b) => b[1] - a[1]);
-        const target = state.lastWrongTopic || (weakEntries[0][1] > 0 ? weakEntries[0][0] : null);
-        if (target) {
+        for (let i = 0; i < topicOrder.length; i++) {
+          const target = topicOrder[state.studyCursor % topicOrder.length];
+          state.studyCursor += 1;
           const targeted = pool.filter((q) => q.topic === target);
           if (targeted.length) return targeted[Math.floor(Math.random() * targeted.length)];
         }
@@ -1165,9 +1168,9 @@
       els.randomMode.classList.toggle("active", mode === "random");
       els.examMode.classList.toggle("active", mode === "exam");
       const help = {
-        adaptive: "平常練習：會混合出題，但答錯後會自動追問同概念。",
+        adaptive: "循序練習：照 Chi-square → t-test/ANOVA → Tree → Ensemble → 評估指標 → 專案解讀走，答錯才插入同概念追問。",
         weak: "補弱點：只集中考你目前錯最多、最不穩的概念。",
-        random: "隨機刷題：完全打散題目，適合確認自己是不是只記住順序。",
+        random: "隨機刷題：完全打散題目，不照課程順序，也不因答錯而追問，適合測臨場反應。",
         exam: "模擬考：一次 20 題，適合考前測試整體熟練度。"
       };
       els.modeHelp.textContent = help[mode];
@@ -1183,6 +1186,7 @@
       state.dueQueue = [];
       state.examQueue = [];
       state.examIndex = 0;
+      state.studyCursor = 0;
       state.lastWrongTopic = null;
       Object.keys(state.weak).forEach((key) => { state.weak[key] = 0; });
       Object.keys(state.mistakes).forEach((key) => { state.mistakes[key] = 0; });
