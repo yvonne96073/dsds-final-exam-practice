@@ -204,6 +204,41 @@
       font-size: .94rem;
     }
 
+    .confidence {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #f9fbfc;
+    }
+
+    .confidence strong {
+      font-size: .94rem;
+    }
+
+    .confidence-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .confidence label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 10px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .confidence input {
+      accent-color: var(--brand);
+    }
+
     .options {
       display: grid;
       gap: 10px;
@@ -337,6 +372,21 @@
       gap: 12px;
     }
 
+    .diagnosis {
+      display: grid;
+      gap: 8px;
+      border: 1px solid #fed7aa;
+      background: #fff7ed;
+      border-radius: 8px;
+      padding: 12px;
+      color: #7c2d12;
+    }
+
+    .diagnosis ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
     .mini-table {
       width: 100%;
       border-collapse: collapse;
@@ -392,6 +442,7 @@
       <section class="stats" aria-label="練習統計">
         <div class="stat"><span>已作答</span><strong id="answered">0</strong></div>
         <div class="stat"><span>正確率</span><strong id="accuracy">-</strong></div>
+        <div class="stat"><span>模擬考進度</span><strong id="examProgress">-</strong></div>
         <div class="stat"><span>目前弱點</span><strong id="weakest">尚未累積</strong></div>
       </section>
 
@@ -405,7 +456,9 @@
       <div class="toolbar">
         <div class="mode-group" aria-label="練習模式">
           <button class="seg active" id="adaptiveMode" type="button">自動針對弱點</button>
+          <button class="seg" id="weakMode" type="button">只練弱點</button>
           <button class="seg" id="randomMode" type="button">隨機練習</button>
+          <button class="seg" id="examMode" type="button">模擬考 20 題</button>
         </div>
         <button class="btn ghost" id="resetBtn" type="button">重新開始</button>
       </div>
@@ -418,6 +471,14 @@
         <h2 id="questionText"></h2>
         <div class="hint" id="hintText"></div>
         <form class="options" id="optionsForm"></form>
+        <div class="confidence" id="confidencePanel">
+          <strong>這題你的把握度？</strong>
+          <div class="confidence-row">
+            <label><input type="radio" name="confidence" value="guess" /> 我是猜的</label>
+            <label><input type="radio" name="confidence" value="partial" checked /> 有點懂</label>
+            <label><input type="radio" name="confidence" value="sure" /> 很確定</label>
+          </div>
+        </div>
         <div class="actions">
           <button class="btn primary" id="submitBtn" type="button">送出答案</button>
           <button class="btn secondary" id="skipBtn" type="button">跳過這題</button>
@@ -426,6 +487,7 @@
 
       <section class="panel feedback" id="feedbackPanel">
         <div class="result" id="resultBox"></div>
+        <div class="diagnosis" id="diagnosisBox"></div>
         <div class="explain-list" id="explainList"></div>
         <div class="actions">
           <button class="btn primary" id="nextBtn" type="button">繼續練習</button>
@@ -811,7 +873,19 @@
       current: null,
       mode: "adaptive",
       history: [],
+      dueQueue: [],
+      examQueue: [],
+      examIndex: 0,
+      examTotal: 20,
       weak: Object.fromEntries(Object.keys(topics).map((key) => [key, 0])),
+      mistakes: {
+        formula: 0,
+        direction: 0,
+        method: 0,
+        model: 0,
+        metric: 0,
+        causality: 0
+      },
       lastWrongTopic: null,
       locked: false
     };
@@ -819,20 +893,25 @@
     const els = {
       answered: document.getElementById("answered"),
       accuracy: document.getElementById("accuracy"),
+      examProgress: document.getElementById("examProgress"),
       weakest: document.getElementById("weakest"),
       topicList: document.getElementById("topicList"),
       adaptiveMode: document.getElementById("adaptiveMode"),
+      weakMode: document.getElementById("weakMode"),
       randomMode: document.getElementById("randomMode"),
+      examMode: document.getElementById("examMode"),
       resetBtn: document.getElementById("resetBtn"),
       topicPill: document.getElementById("topicPill"),
       sourceText: document.getElementById("sourceText"),
       questionText: document.getElementById("questionText"),
       hintText: document.getElementById("hintText"),
       optionsForm: document.getElementById("optionsForm"),
+      confidencePanel: document.getElementById("confidencePanel"),
       submitBtn: document.getElementById("submitBtn"),
       skipBtn: document.getElementById("skipBtn"),
       feedbackPanel: document.getElementById("feedbackPanel"),
       resultBox: document.getElementById("resultBox"),
+      diagnosisBox: document.getElementById("diagnosisBox"),
       explainList: document.getElementById("explainList"),
       nextBtn: document.getElementById("nextBtn"),
       reviewBtn: document.getElementById("reviewBtn"),
@@ -849,10 +928,29 @@
     }
 
     function chooseQuestion() {
+      if (state.mode === "exam") {
+        if (!state.examQueue.length || state.examIndex >= state.examQueue.length) startExam();
+        return state.examQueue[state.examIndex];
+      }
+
+      if (state.dueQueue.length && state.mode !== "random") {
+        const target = state.dueQueue.shift();
+        const candidates = questionBank.filter((q) => q.topic === target && !state.history.slice(-3).includes(q.id));
+        if (candidates.length) return candidates[Math.floor(Math.random() * candidates.length)];
+      }
+
       const recent = new Set(state.history.slice(-5));
       let pool = questionBank.filter((q) => !recent.has(q.id));
 
       if (pool.length === 0) pool = [...questionBank];
+
+      if (state.mode === "weak") {
+        const weakOnly = Object.entries(state.weak)
+          .filter(([, count]) => count > 0)
+          .map(([topic]) => topic);
+        const targeted = pool.filter((q) => weakOnly.includes(q.topic));
+        if (targeted.length) return targeted[Math.floor(Math.random() * targeted.length)];
+      }
 
       if (state.mode === "adaptive") {
         const weakEntries = Object.entries(state.weak).sort((a, b) => b[1] - a[1]);
@@ -864,6 +962,11 @@
       }
 
       return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function startExam() {
+      state.examQueue = shuffle(questionBank).slice(0, Math.min(state.examTotal, questionBank.length));
+      state.examIndex = 0;
     }
 
     function renderQuestion(question) {
@@ -878,6 +981,7 @@
       els.feedbackPanel.classList.remove("show");
       els.reviewBox.classList.remove("show");
       els.submitBtn.disabled = false;
+      els.confidencePanel.querySelector('input[value="partial"]').checked = true;
 
       question.options.forEach(([letter, text]) => {
         const label = document.createElement("label");
@@ -900,6 +1004,49 @@
       return b.every((item) => set.has(item));
     }
 
+    function getConfidence() {
+      return els.confidencePanel.querySelector("input[name='confidence']:checked")?.value || "partial";
+    }
+
+    function inferMistakes(question, selected, correct, isCorrect, confidence) {
+      const selectedWrong = question.options.filter(([letter, , answer]) => selected.includes(letter) && !answer);
+      const missedCorrect = question.options.filter(([letter, , answer]) => correct.includes(letter) && !selected.includes(letter) && answer);
+      const text = [...selectedWrong, ...missedCorrect].map((opt) => opt[1]).join(" ").toLowerCase();
+      const reasons = [];
+
+      if (isCorrect && confidence === "sure") return reasons;
+
+      if (/tp|fp|fn|recall|precision|threshold|auc|roc|accuracy/.test(text) || question.topic === "eval") {
+        reasons.push(["metric", "分類評估指標混淆：特別注意 Recall 的分母是 TP+FN，Precision 的分母是 TP+FP。"]);
+      }
+      if (/p-value|alpha|reject|h0|independent|larger|smaller|low|high|greater|less/.test(text) || question.topic === "chi") {
+        reasons.push(["direction", "方向判斷需要加強：p-value 小才拒絕 H0；impurity 越低越純；AUC 越大通常越好。"]);
+      }
+      if (/t-test|anova|chi-square|proportion|f-test|categorical|mean|variance/.test(text) || question.topic === "stat") {
+        reasons.push(["method", "方法選擇混淆：Chi-square 看類別對類別；t-test 看兩組平均；ANOVA 看三組以上平均。"]);
+      }
+      if (/c5|cart|gini|entropy|bagging|boosting|random forest|tree/.test(text) || question.topic === "tree" || question.topic === "ensemble") {
+        reasons.push(["model", "模型差異混淆：C5.0 對 entropy，CART 對 Gini；Bagging 平行，Boosting 序列修錯。"]);
+      }
+      if (/causality|causal|definitely/.test(text) || question.topic === "project") {
+        reasons.push(["causality", "因果推論陷阱：feature importance 或統計關聯不等於因果。"]);
+      }
+      if (confidence === "guess") {
+        reasons.push(["formula", "低信心答對/答錯都要複習：這題目前比較像猜中，系統會安排變形題。"]);
+      }
+
+      const unique = [];
+      const seen = new Set();
+      reasons.forEach((item) => {
+        if (!seen.has(item[0])) {
+          seen.add(item[0]);
+          unique.push(item);
+        }
+      });
+      if (!unique.length && !isCorrect) unique.push(["method", "選項判斷不穩：下一題會用同主題換一種敘述考你。"]);
+      return unique;
+    }
+
     function submitAnswer() {
       if (state.locked) return;
       const question = state.current;
@@ -911,19 +1058,26 @@
 
       const correct = question.options.filter((opt) => opt[2]).map((opt) => opt[0]);
       const isCorrect = arraysEqualSet(selected, correct);
+      const confidence = getConfidence();
+      const mistakeReasons = inferMistakes(question, selected, correct, isCorrect, confidence);
       state.locked = true;
       state.answered += 1;
-      if (isCorrect) {
+      if (isCorrect && confidence === "sure") {
         state.correct += 1;
         if (state.weak[question.topic] > 0) state.weak[question.topic] -= 1;
         state.lastWrongTopic = null;
       } else {
+        if (isCorrect) state.correct += 1;
         state.weak[question.topic] += 1;
         state.lastWrongTopic = question.topic;
+        state.dueQueue.push(question.topic);
+        if (!isCorrect) state.dueQueue.push(question.topic);
       }
+      mistakeReasons.forEach(([key]) => { state.mistakes[key] += 1; });
+      if (state.mode === "exam") state.examIndex += 1;
 
       markOptions(selected);
-      renderFeedback(question, selected, correct, isCorrect);
+      renderFeedback(question, selected, correct, isCorrect, confidence, mistakeReasons);
       updateStats();
     }
 
@@ -940,27 +1094,45 @@
       });
     }
 
-    function renderFeedback(question, selected, correct, isCorrect) {
+    function renderFeedback(question, selected, correct, isCorrect, confidence, mistakeReasons) {
       els.feedbackPanel.classList.add("show");
-      els.resultBox.className = `result ${isCorrect ? "ok" : "bad"}`;
-      els.resultBox.textContent = isCorrect
-        ? "答對了。這題的判斷方向是正確的。"
-        : `答錯了。正確答案是 ${correct.join(", ")}。下一題會優先用「${topics[question.topic]}」換一種方式考你。`;
+      const fullyMastered = isCorrect && confidence === "sure";
+      els.resultBox.className = `result ${fullyMastered ? "ok" : "bad"}`;
+      if (fullyMastered) {
+        els.resultBox.textContent = "答對且很確定。這題暫時標為已掌握。";
+      } else if (isCorrect) {
+        els.resultBox.textContent = `答對了，但你的把握度不是「很確定」。系統會再安排「${topics[question.topic]}」變形題確認。`;
+      } else {
+        els.resultBox.textContent = `答錯了。正確答案是 ${correct.join(", ")}。下一題會優先用「${topics[question.topic]}」換一種方式考你。`;
+      }
+
+      if (mistakeReasons.length) {
+        els.diagnosisBox.style.display = "grid";
+        els.diagnosisBox.innerHTML = `
+          <strong>系統判斷的錯因</strong>
+          <ul>${mistakeReasons.map(([, text]) => `<li>${text}</li>`).join("")}</ul>
+        `;
+      } else {
+        els.diagnosisBox.style.display = "none";
+        els.diagnosisBox.innerHTML = "";
+      }
 
       els.explainList.innerHTML = "";
       question.options.forEach(([letter, text, answer, reason]) => {
         const picked = selected.includes(letter);
-        const needsExplain = answer || picked;
-        if (!needsExplain) return;
         const block = document.createElement("div");
         block.className = "explain";
         const status = answer ? "正確敘述" : "錯誤陷阱";
-        const pickedText = picked ? "你有選" : "你漏選";
+        const pickedText = picked ? "你有選" : (answer ? "你漏選" : "你未選");
         block.innerHTML = `<strong>${letter}. ${status}｜${pickedText}</strong><div>${text}</div><div>${reason}</div>`;
         els.explainList.appendChild(block);
       });
 
-      els.nextBtn.textContent = isCorrect ? "繼續練習" : "用同概念換題再練";
+      if (state.mode === "exam" && state.examIndex >= state.examQueue.length) {
+        els.nextBtn.textContent = "完成模擬考，回到弱點練習";
+      } else {
+        els.nextBtn.textContent = fullyMastered ? "繼續練習" : "用同概念換題再練";
+      }
     }
 
     function renderReview() {
@@ -976,8 +1148,22 @@
     function updateStats() {
       els.answered.textContent = String(state.answered);
       els.accuracy.textContent = state.answered ? `${Math.round((state.correct / state.answered) * 100)}%` : "-";
+      els.examProgress.textContent = state.mode === "exam"
+        ? `${Math.min(state.examIndex + (state.locked ? 0 : 1), state.examQueue.length || state.examTotal)} / ${state.examQueue.length || state.examTotal}`
+        : "-";
       const sorted = Object.entries(state.weak).sort((a, b) => b[1] - a[1]);
-      els.weakest.textContent = sorted[0][1] > 0 ? topics[sorted[0][0]] : "尚未累積";
+      const mistakeSorted = Object.entries(state.mistakes).sort((a, b) => b[1] - a[1]);
+      const mistakeLabel = {
+        formula: "公式/低信心",
+        direction: "方向判斷",
+        method: "方法選擇",
+        model: "模型差異",
+        metric: "指標混淆",
+        causality: "因果陷阱"
+      };
+      els.weakest.textContent = sorted[0][1] > 0
+        ? `${topics[sorted[0][0]]}｜${mistakeSorted[0][1] > 0 ? mistakeLabel[mistakeSorted[0][0]] : "待觀察"}`
+        : "尚未累積";
       els.topicList.innerHTML = "";
       Object.entries(topics).forEach(([key, label]) => {
         const row = document.createElement("div");
@@ -991,25 +1177,43 @@
     function setMode(mode) {
       state.mode = mode;
       els.adaptiveMode.classList.toggle("active", mode === "adaptive");
+      els.weakMode.classList.toggle("active", mode === "weak");
       els.randomMode.classList.toggle("active", mode === "random");
+      els.examMode.classList.toggle("active", mode === "exam");
+      if (mode === "exam") startExam();
+      renderQuestion(chooseQuestion());
+      updateStats();
     }
 
     function reset() {
       state.answered = 0;
       state.correct = 0;
       state.history = [];
+      state.dueQueue = [];
+      state.examQueue = [];
+      state.examIndex = 0;
       state.lastWrongTopic = null;
       Object.keys(state.weak).forEach((key) => { state.weak[key] = 0; });
+      Object.keys(state.mistakes).forEach((key) => { state.mistakes[key] = 0; });
       updateStats();
       renderQuestion(chooseQuestion());
     }
 
     els.submitBtn.addEventListener("click", submitAnswer);
     els.skipBtn.addEventListener("click", () => renderQuestion(chooseQuestion()));
-    els.nextBtn.addEventListener("click", () => renderQuestion(chooseQuestion()));
+    els.nextBtn.addEventListener("click", () => {
+      if (state.mode === "exam" && state.examIndex >= state.examQueue.length) {
+        setMode("weak");
+        return;
+      }
+      renderQuestion(chooseQuestion());
+      updateStats();
+    });
     els.reviewBtn.addEventListener("click", renderReview);
     els.adaptiveMode.addEventListener("click", () => setMode("adaptive"));
+    els.weakMode.addEventListener("click", () => setMode("weak"));
     els.randomMode.addEventListener("click", () => setMode("random"));
+    els.examMode.addEventListener("click", () => setMode("exam"));
     els.resetBtn.addEventListener("click", reset);
 
     updateStats();
