@@ -485,30 +485,6 @@
       color: var(--muted);
     }
 
-    .settings {
-      display: none;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      background: #f9fbfc;
-      gap: 10px;
-    }
-
-    .settings.show {
-      display: grid;
-    }
-
-    .settings textarea {
-      width: 100%;
-      min-height: 96px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px;
-      resize: vertical;
-      font-family: Consolas, monospace;
-      font-size: .86rem;
-    }
-
     .diagnosis {
       display: grid;
       gap: 8px;
@@ -572,6 +548,350 @@
       .feedback {
         padding-left: 18px;
         padding-right: 18px;
+      }
+    }
+
+    /* Visual refresh for the shared practice app. */
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #667383;
+      --line: #dce3ea;
+      --brand: #0f766e;
+      --brand-dark: #0b5f59;
+      --accent: #2563eb;
+      --danger: #be123c;
+      --danger-bg: #fff1f2;
+      --ok: #15803d;
+      --ok-bg: #ecfdf5;
+      --shadow: 0 20px 55px rgba(23, 32, 42, .08);
+    }
+
+    body {
+      background:
+        linear-gradient(180deg, #eaf4f2 0, #f4f6f8 310px),
+        var(--bg);
+      font-size: 16px;
+    }
+
+    .app {
+      grid-template-columns: 312px minmax(0, 1fr);
+    }
+
+    aside {
+      background: rgba(255, 255, 255, .92);
+      border-right: 1px solid #e5eaf0;
+      padding: 24px;
+    }
+
+    main {
+      width: min(1120px, 100%);
+      padding: 30px clamp(18px, 3vw, 44px) 48px;
+      gap: 18px;
+    }
+
+    .brand {
+      border-bottom: 1px solid #e7edf2;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+    }
+
+    .brand h1 {
+      font-size: 1.22rem;
+    }
+
+    .brand p {
+      font-size: .9rem;
+    }
+
+    .stats {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .stat,
+    .account {
+      border: 1px solid #e3e9ef;
+      box-shadow: none;
+      background: #fff;
+    }
+
+    .stat {
+      grid-template-columns: 1fr;
+      gap: 4px;
+      padding: 12px;
+      min-height: 78px;
+    }
+
+    .stat strong {
+      font-size: 1.22rem;
+      color: var(--ink);
+    }
+
+    .account {
+      padding: 14px;
+      margin: 14px 0 18px;
+    }
+
+    .account-title {
+      font-size: .96rem;
+    }
+
+    .account-actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    aside section:last-child {
+      background: #fff;
+      border: 1px solid #e3e9ef;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    aside section:last-child h2 {
+      color: var(--ink);
+      font-size: .95rem !important;
+      margin-bottom: 8px !important;
+    }
+
+    .topic-row {
+      border-bottom: 1px solid #eef2f5;
+      color: #596675;
+      font-size: .86rem;
+      padding: 7px 0;
+    }
+
+    .toolbar {
+      max-width: none;
+      align-items: flex-start;
+      background: #fff;
+      border: 1px solid #e3e9ef;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(23, 32, 42, .05);
+    }
+
+    .mode-area {
+      gap: 10px;
+    }
+
+    .mode-group {
+      gap: 6px;
+    }
+
+    .mode-help {
+      max-width: 760px;
+      color: #5f6d7d;
+    }
+
+    .seg {
+      border-color: #d9e1e8;
+      background: #f8fafc;
+      color: #26313d;
+      min-height: 38px;
+      padding: 8px 12px;
+      font-weight: 750;
+    }
+
+    .seg:hover {
+      background: #eef5f4;
+      border-color: #c8d9d6;
+    }
+
+    .seg.active {
+      background: #0f766e;
+      color: #fff;
+      border-color: #0f766e;
+    }
+
+    .panel {
+      max-width: none;
+      border: 1px solid #e0e7ee;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .question {
+      padding: clamp(20px, 3vw, 34px);
+      gap: 22px;
+    }
+
+    .question h2 {
+      max-width: 900px;
+      font-size: clamp(1.25rem, 2vw, 1.72rem);
+      line-height: 1.42;
+    }
+
+    .meta {
+      gap: 10px;
+    }
+
+    .pill {
+      border-radius: 8px;
+      background: #eaf4f2;
+      color: #0b5f59;
+    }
+
+    #sourceText {
+      color: #6b7786;
+    }
+
+    .options {
+      gap: 12px;
+    }
+
+    .option {
+      grid-template-columns: 24px 1fr;
+      border-color: #dfe6ed;
+      padding: 14px 16px;
+      transition: border-color .15s ease, background .15s ease, transform .15s ease;
+    }
+
+    .option:hover {
+      background: #f8fbfb;
+      border-color: #9ccac4;
+      transform: translateY(-1px);
+    }
+
+    .letter {
+      color: #0f766e;
+    }
+
+    .confidence {
+      background: #f8fafc;
+      border-color: #e1e8ef;
+    }
+
+    .confidence label {
+      border-color: #dce4eb;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      min-height: 42px;
+    }
+
+    .primary {
+      background: #0f766e;
+    }
+
+    .secondary {
+      background: #edf2f7;
+    }
+
+    .ghost {
+      background: #fff;
+      border-color: #d9e1e8;
+    }
+
+    .feedback {
+      border-top: 0;
+      padding: 0 clamp(20px, 3vw, 34px) clamp(22px, 3vw, 34px);
+    }
+
+    .feedback.show {
+      gap: 12px;
+    }
+
+    .result,
+    .diagnosis,
+    .explain,
+    .wrong-item,
+    .dash-card {
+      border-radius: 8px;
+    }
+
+    .dashboard {
+      padding: clamp(20px, 3vw, 28px);
+      gap: 20px;
+    }
+
+    .dashboard h2 {
+      font-size: 1.08rem;
+      color: #202a35;
+    }
+
+    .dash-grid {
+      grid-template-columns: repeat(3, minmax(160px, 1fr));
+    }
+
+    .dash-card {
+      background: #f9fbfc;
+      border-color: #e2e8ee;
+      min-height: 104px;
+    }
+
+    .dash-card strong {
+      font-size: 1.48rem;
+      color: #0b5f59;
+    }
+
+    .bar-row {
+      grid-template-columns: minmax(150px, 220px) minmax(120px, 1fr) 44px;
+    }
+
+    .bar-track {
+      background: #e8edf2;
+    }
+
+    .bar-fill {
+      background: #2563eb;
+    }
+
+    .wrong-item {
+      border-color: #e1e7ed;
+      background: #fbfcfd;
+    }
+
+    .review-box {
+      max-width: none;
+    }
+
+    @media (max-width: 920px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid #e3e9ef;
+      }
+
+      main {
+        padding: 18px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .stats,
+      .dash-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        flex-direction: column;
+      }
+
+      .toolbar .btn {
+        width: 100%;
+      }
+
+      .mode-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+      }
+
+      .bar-row {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -654,7 +974,7 @@
       </section>
 
       <section class="panel dashboard" id="dashboardPanel">
-        <h2>錯題分析 Dashboard</h2>
+        <h2>學習分析</h2>
         <div class="dash-grid">
           <div class="dash-card"><span>累積正確率</span><strong id="dashAccuracy">-</strong></div>
           <div class="dash-card"><span>最需要補強</span><strong id="dashWeakest">尚未累積</strong></div>
