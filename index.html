@@ -84,6 +84,36 @@
       margin: 22px 0;
     }
 
+    .account {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+      margin: 18px 0;
+    }
+
+    .account-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-weight: 800;
+    }
+
+    .sync-status {
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.45;
+    }
+
+    .account-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .stat {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -374,6 +404,111 @@
       gap: 12px;
     }
 
+    .dashboard {
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .dashboard h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .dash-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+      display: grid;
+      gap: 6px;
+      min-height: 92px;
+    }
+
+    .dash-card span {
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .dash-card strong {
+      font-size: 1.35rem;
+      line-height: 1.2;
+    }
+
+    .bars {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 210px) 1fr auto;
+      gap: 10px;
+      align-items: center;
+      font-size: .9rem;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: #edf0f3;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--brand);
+      border-radius: inherit;
+    }
+
+    .wrong-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .wrong-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+      display: grid;
+      gap: 5px;
+    }
+
+    .wrong-item small {
+      color: var(--muted);
+    }
+
+    .settings {
+      display: none;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #f9fbfc;
+      gap: 10px;
+    }
+
+    .settings.show {
+      display: grid;
+    }
+
+    .settings textarea {
+      width: 100%;
+      min-height: 96px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      resize: vertical;
+      font-family: Consolas, monospace;
+      font-size: .86rem;
+    }
+
     .diagnosis {
       display: grid;
       gap: 8px;
@@ -425,6 +560,14 @@
         flex-direction: column;
       }
 
+      .dash-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bar-row {
+        grid-template-columns: 1fr;
+      }
+
       .question,
       .feedback {
         padding-left: 18px;
@@ -446,6 +589,27 @@
         <div class="stat"><span>正確率</span><strong id="accuracy">-</strong></div>
         <div class="stat"><span>模擬考進度</span><strong id="examProgress">-</strong></div>
         <div class="stat"><span>目前弱點</span><strong id="weakest">尚未累積</strong></div>
+      </section>
+
+      <section class="account" aria-label="帳號與同步">
+        <div class="account-title">
+          <span>資料保存</span>
+          <span class="pill" id="storagePill">本機</span>
+        </div>
+        <div class="sync-status" id="syncStatus">已啟用本機保存；重新整理不會消失。</div>
+        <div class="account-actions">
+          <button class="btn secondary" id="googleBtn" type="button">Google 登入</button>
+          <button class="btn ghost" id="syncSettingsBtn" type="button">同步設定</button>
+        </div>
+        <div class="settings" id="syncSettings">
+          <strong>Firebase 設定 JSON</strong>
+          <textarea id="firebaseConfigInput" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea>
+          <div class="actions">
+            <button class="btn secondary" id="saveFirebaseBtn" type="button">儲存設定</button>
+            <button class="btn ghost" id="clearFirebaseBtn" type="button">清除設定</button>
+          </div>
+          <div class="sync-status">Google 登入需要 Firebase 專案，並在 Auth 加入 yvonne96073.github.io 授權網域。</div>
+        </div>
       </section>
 
       <section>
@@ -499,6 +663,27 @@
         </div>
       </section>
 
+      <section class="panel dashboard" id="dashboardPanel">
+        <h2>錯題分析 Dashboard</h2>
+        <div class="dash-grid">
+          <div class="dash-card"><span>累積正確率</span><strong id="dashAccuracy">-</strong></div>
+          <div class="dash-card"><span>最需要補強</span><strong id="dashWeakest">尚未累積</strong></div>
+          <div class="dash-card"><span>錯題本</span><strong id="dashWrongCount">0 題</strong></div>
+        </div>
+        <div>
+          <h2>單元弱點</h2>
+          <div class="bars" id="topicBars"></div>
+        </div>
+        <div>
+          <h2>常見錯因</h2>
+          <div class="bars" id="mistakeBars"></div>
+        </div>
+        <div>
+          <h2>錯題本</h2>
+          <div class="wrong-list" id="wrongList"></div>
+        </div>
+      </section>
+
       <section class="panel review-box" id="reviewBox"></section>
     </main>
   </div>
@@ -514,6 +699,17 @@
     };
 
     const topicOrder = ["chi", "stat", "tree", "ensemble", "eval", "project"];
+    const STORAGE_KEY = "dsdsFinalPracticeProgressV2";
+    const FIREBASE_CONFIG_KEY = "dsdsFinalPracticeFirebaseConfig";
+    const APP_VERSION = 2;
+    const mistakeLabel = {
+      formula: "公式/低信心",
+      direction: "方向判斷",
+      method: "方法選擇",
+      model: "模型差異",
+      metric: "指標混淆",
+      causality: "因果陷阱"
+    };
 
     const conceptNotes = {
       chi: [
@@ -862,6 +1058,8 @@
       examTotal: 20,
       studyCursor: 0,
       weak: Object.fromEntries(Object.keys(topics).map((key) => [key, 0])),
+      topicAttempts: Object.fromEntries(Object.keys(topics).map((key) => [key, 0])),
+      topicCorrect: Object.fromEntries(Object.keys(topics).map((key) => [key, 0])),
       mistakes: {
         formula: 0,
         direction: 0,
@@ -870,6 +1068,13 @@
         metric: 0,
         causality: 0
       },
+      confidenceCounts: {
+        guess: 0,
+        partial: 0,
+        sure: 0
+      },
+      answerLog: [],
+      wrongBook: [],
       lastWrongTopic: null,
       locked: false
     };
@@ -880,6 +1085,14 @@
       examProgress: document.getElementById("examProgress"),
       weakest: document.getElementById("weakest"),
       topicList: document.getElementById("topicList"),
+      storagePill: document.getElementById("storagePill"),
+      syncStatus: document.getElementById("syncStatus"),
+      googleBtn: document.getElementById("googleBtn"),
+      syncSettingsBtn: document.getElementById("syncSettingsBtn"),
+      syncSettings: document.getElementById("syncSettings"),
+      firebaseConfigInput: document.getElementById("firebaseConfigInput"),
+      saveFirebaseBtn: document.getElementById("saveFirebaseBtn"),
+      clearFirebaseBtn: document.getElementById("clearFirebaseBtn"),
       adaptiveMode: document.getElementById("adaptiveMode"),
       weakMode: document.getElementById("weakMode"),
       randomMode: document.getElementById("randomMode"),
@@ -899,8 +1112,102 @@
       explainList: document.getElementById("explainList"),
       nextBtn: document.getElementById("nextBtn"),
       reviewBtn: document.getElementById("reviewBtn"),
-      reviewBox: document.getElementById("reviewBox")
+      reviewBox: document.getElementById("reviewBox"),
+      dashAccuracy: document.getElementById("dashAccuracy"),
+      dashWeakest: document.getElementById("dashWeakest"),
+      dashWrongCount: document.getElementById("dashWrongCount"),
+      topicBars: document.getElementById("topicBars"),
+      mistakeBars: document.getElementById("mistakeBars"),
+      wrongList: document.getElementById("wrongList")
     };
+
+    function safeParseJson(text, fallback = null) {
+      try {
+        return JSON.parse(text);
+      } catch {
+        return fallback;
+      }
+    }
+
+    function getPersistableState() {
+      return {
+        version: APP_VERSION,
+        savedAt: new Date().toISOString(),
+        answered: state.answered,
+        correct: state.correct,
+        mode: state.mode,
+        history: state.history.slice(-80),
+        dueQueue: state.dueQueue.slice(-20),
+        examIndex: state.examIndex,
+        examTotal: state.examTotal,
+        studyCursor: state.studyCursor,
+        weak: state.weak,
+        topicAttempts: state.topicAttempts,
+        topicCorrect: state.topicCorrect,
+        mistakes: state.mistakes,
+        confidenceCounts: state.confidenceCounts,
+        answerLog: state.answerLog.slice(-200),
+        wrongBook: state.wrongBook.slice(-80),
+        lastWrongTopic: state.lastWrongTopic
+      };
+    }
+
+    function applySnapshot(snapshot) {
+      if (!snapshot || typeof snapshot !== "object") return;
+      state.answered = Number(snapshot.answered) || 0;
+      state.correct = Number(snapshot.correct) || 0;
+      state.mode = snapshot.mode || "adaptive";
+      state.history = Array.isArray(snapshot.history) ? snapshot.history : [];
+      state.dueQueue = Array.isArray(snapshot.dueQueue) ? snapshot.dueQueue : [];
+      state.examIndex = Number(snapshot.examIndex) || 0;
+      state.examTotal = Number(snapshot.examTotal) || 20;
+      state.studyCursor = Number(snapshot.studyCursor) || 0;
+      state.lastWrongTopic = snapshot.lastWrongTopic || null;
+      Object.keys(topics).forEach((key) => {
+        state.weak[key] = Number(snapshot.weak?.[key]) || 0;
+        state.topicAttempts[key] = Number(snapshot.topicAttempts?.[key]) || 0;
+        state.topicCorrect[key] = Number(snapshot.topicCorrect?.[key]) || 0;
+      });
+      Object.keys(state.mistakes).forEach((key) => {
+        state.mistakes[key] = Number(snapshot.mistakes?.[key]) || 0;
+      });
+      Object.keys(state.confidenceCounts).forEach((key) => {
+        state.confidenceCounts[key] = Number(snapshot.confidenceCounts?.[key]) || 0;
+      });
+      state.answerLog = Array.isArray(snapshot.answerLog) ? snapshot.answerLog : [];
+      state.wrongBook = Array.isArray(snapshot.wrongBook) ? snapshot.wrongBook : [];
+    }
+
+    function saveProgress() {
+      const snapshot = getPersistableState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+      window.saveCloudProgress?.(snapshot);
+      renderDashboard();
+      return snapshot;
+    }
+
+    function loadLocalProgress() {
+      const snapshot = safeParseJson(localStorage.getItem(STORAGE_KEY));
+      if (snapshot) applySnapshot(snapshot);
+    }
+
+    function resetCollections() {
+      state.answered = 0;
+      state.correct = 0;
+      state.history = [];
+      state.dueQueue = [];
+      state.examQueue = [];
+      state.examIndex = 0;
+      state.studyCursor = 0;
+      state.lastWrongTopic = null;
+      Object.keys(state.weak).forEach((key) => { state.weak[key] = 0; });
+      Object.keys(state.topicAttempts).forEach((key) => { state.topicAttempts[key] = 0; });
+      Object.keys(state.topicCorrect).forEach((key) => { state.topicCorrect[key] = 0; });
+      Object.keys(state.mistakes).forEach((key) => { state.mistakes[key] = 0; });
+      Object.keys(state.confidenceCounts).forEach((key) => { state.confidenceCounts[key] = 0; });
+      state.answerLog = [];
+      state.wrongBook = [];
+    }
 
     function shuffle(items) {
       const copy = [...items];
@@ -1047,25 +1354,64 @@
       const isCorrect = arraysEqualSet(selected, correct);
       const confidence = getConfidence();
       const mistakeReasons = inferMistakes(question, selected, correct, isCorrect, confidence);
+      const reasonKeys = mistakeReasons.map(([key]) => key);
       state.locked = true;
       state.answered += 1;
+      state.topicAttempts[question.topic] += 1;
+      state.confidenceCounts[confidence] += 1;
       if (isCorrect && confidence === "sure") {
         state.correct += 1;
+        state.topicCorrect[question.topic] += 1;
         if (state.weak[question.topic] > 0) state.weak[question.topic] -= 1;
         state.lastWrongTopic = null;
       } else {
         if (isCorrect) state.correct += 1;
+        if (isCorrect) state.topicCorrect[question.topic] += 1;
         state.weak[question.topic] += 1;
         state.lastWrongTopic = question.topic;
         state.dueQueue.push(question.topic);
         if (!isCorrect) state.dueQueue.push(question.topic);
       }
       mistakeReasons.forEach(([key]) => { state.mistakes[key] += 1; });
+      recordAnswer(question, selected, correct, isCorrect, confidence, reasonKeys);
       if (state.mode === "exam") state.examIndex += 1;
 
       markOptions(selected);
       renderFeedback(question, selected, correct, isCorrect, confidence, mistakeReasons);
       updateStats();
+      saveProgress();
+    }
+
+    function recordAnswer(question, selected, correct, isCorrect, confidence, reasonKeys) {
+      const entry = {
+        at: new Date().toISOString(),
+        questionId: question.id,
+        topic: question.topic,
+        prompt: question.prompt,
+        selected,
+        correct,
+        isCorrect,
+        confidence,
+        reasons: reasonKeys
+      };
+      state.answerLog.push(entry);
+      if (state.answerLog.length > 200) state.answerLog.shift();
+
+      const needsReview = !isCorrect || confidence !== "sure";
+      const existing = state.wrongBook.find((item) => item.questionId === question.id);
+      if (needsReview) {
+        const reviewEntry = {
+          ...entry,
+          attempts: (existing?.attempts || 0) + 1,
+          lastMissed: correct.filter((letter) => !selected.includes(letter)),
+          lastWrongSelected: selected.filter((letter) => !correct.includes(letter))
+        };
+        if (existing) Object.assign(existing, reviewEntry);
+        else state.wrongBook.unshift(reviewEntry);
+      } else if (existing) {
+        state.wrongBook = state.wrongBook.filter((item) => item.questionId !== question.id);
+      }
+      state.wrongBook = state.wrongBook.slice(0, 80);
     }
 
     function markOptions(selected) {
@@ -1140,14 +1486,6 @@
         : "-";
       const sorted = Object.entries(state.weak).sort((a, b) => b[1] - a[1]);
       const mistakeSorted = Object.entries(state.mistakes).sort((a, b) => b[1] - a[1]);
-      const mistakeLabel = {
-        formula: "公式/低信心",
-        direction: "方向判斷",
-        method: "方法選擇",
-        model: "模型差異",
-        metric: "指標混淆",
-        causality: "因果陷阱"
-      };
       els.weakest.textContent = sorted[0][1] > 0
         ? `${topics[sorted[0][0]]}｜${mistakeSorted[0][1] > 0 ? mistakeLabel[mistakeSorted[0][0]] : "待觀察"}`
         : "尚未累積";
@@ -1159,43 +1497,137 @@
         row.innerHTML = `<span>${label}</span><strong class="${count ? "weak" : ""}">${count}</strong>`;
         els.topicList.appendChild(row);
       });
+      renderDashboard();
+    }
+
+    function renderBars(container, rows, emptyText) {
+      container.innerHTML = "";
+      const max = Math.max(...rows.map((row) => row.value), 1);
+      const visible = rows.filter((row) => row.value > 0);
+      if (!visible.length) {
+        container.innerHTML = `<div class="sync-status">${emptyText}</div>`;
+        return;
+      }
+      visible.forEach((row) => {
+        const div = document.createElement("div");
+        div.className = "bar-row";
+        div.innerHTML = `
+          <span>${row.label}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6, Math.round((row.value / max) * 100))}%"></div></div>
+          <strong>${row.value}</strong>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderDashboard() {
+      els.dashAccuracy.textContent = state.answered ? `${Math.round((state.correct / state.answered) * 100)}%` : "-";
+      const weakSorted = Object.entries(state.weak).sort((a, b) => b[1] - a[1]);
+      els.dashWeakest.textContent = weakSorted[0][1] > 0 ? topics[weakSorted[0][0]] : "尚未累積";
+      els.dashWrongCount.textContent = `${state.wrongBook.length} 題`;
+
+      renderBars(
+        els.topicBars,
+        Object.entries(topics).map(([key, label]) => ({
+          label,
+          value: state.weak[key]
+        })),
+        "還沒有弱點資料。先做幾題，這裡會自動長出來。"
+      );
+      renderBars(
+        els.mistakeBars,
+        Object.entries(mistakeLabel).map(([key, label]) => ({
+          label,
+          value: state.mistakes[key]
+        })),
+        "還沒有錯因資料。答錯或低信心答對後會開始累積。"
+      );
+
+      if (!state.wrongBook.length) {
+        els.wrongList.innerHTML = `<div class="sync-status">目前沒有錯題。答錯或低信心答對的題目會自動收進來。</div>`;
+        return;
+      }
+      els.wrongList.innerHTML = "";
+      state.wrongBook.slice(0, 8).forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "wrong-item";
+        const reasonText = item.reasons?.length ? item.reasons.map((key) => mistakeLabel[key]).join("、") : "待觀察";
+        div.innerHTML = `
+          <small>${topics[item.topic]}｜${reasonText}｜累積 ${item.attempts || 1} 次</small>
+          <strong>${item.prompt}</strong>
+          <small>你選：${item.selected.join(", ") || "-"}｜正解：${item.correct.join(", ")}</small>
+        `;
+        els.wrongList.appendChild(div);
+      });
     }
 
     function setMode(mode) {
       state.mode = mode;
-      els.adaptiveMode.classList.toggle("active", mode === "adaptive");
-      els.weakMode.classList.toggle("active", mode === "weak");
-      els.randomMode.classList.toggle("active", mode === "random");
-      els.examMode.classList.toggle("active", mode === "exam");
+      updateModeUi();
+      if (mode === "exam") startExam();
+      renderQuestion(chooseQuestion());
+      updateStats();
+      saveProgress();
+    }
+
+    function updateModeUi() {
+      els.adaptiveMode.classList.toggle("active", state.mode === "adaptive");
+      els.weakMode.classList.toggle("active", state.mode === "weak");
+      els.randomMode.classList.toggle("active", state.mode === "random");
+      els.examMode.classList.toggle("active", state.mode === "exam");
       const help = {
         adaptive: "循序練習：照 Chi-square → t-test/ANOVA → Tree → Ensemble → 評估指標 → 專案解讀走，答錯才插入同概念追問。",
         weak: "補弱點：只集中考你目前錯最多、最不穩的概念。",
         random: "隨機刷題：完全打散題目，不照課程順序，也不因答錯而追問，適合測臨場反應。",
         exam: "模擬考：一次 20 題，適合考前測試整體熟練度。"
       };
-      els.modeHelp.textContent = help[mode];
-      if (mode === "exam") startExam();
-      renderQuestion(chooseQuestion());
-      updateStats();
+      els.modeHelp.textContent = help[state.mode];
     }
 
     function reset() {
-      state.answered = 0;
-      state.correct = 0;
-      state.history = [];
-      state.dueQueue = [];
-      state.examQueue = [];
-      state.examIndex = 0;
-      state.studyCursor = 0;
-      state.lastWrongTopic = null;
-      Object.keys(state.weak).forEach((key) => { state.weak[key] = 0; });
-      Object.keys(state.mistakes).forEach((key) => { state.mistakes[key] = 0; });
+      resetCollections();
+      localStorage.removeItem(STORAGE_KEY);
       updateStats();
+      saveProgress();
       renderQuestion(chooseQuestion());
     }
 
+    function hasFirebaseConfig() {
+      const config = safeParseJson(localStorage.getItem(FIREBASE_CONFIG_KEY));
+      return !!(config?.apiKey && config?.authDomain && config?.projectId && config?.appId);
+    }
+
+    function hydrateFirebaseSettings() {
+      els.firebaseConfigInput.value = localStorage.getItem(FIREBASE_CONFIG_KEY) || "";
+      if (hasFirebaseConfig()) {
+        els.storagePill.textContent = "可登入";
+        els.syncStatus.textContent = "已儲存 Firebase 設定，可使用 Google 登入同步。";
+      } else {
+        els.storagePill.textContent = "本機";
+        els.syncStatus.textContent = "已啟用本機保存；重新整理不會消失。若要跨裝置同步，請先填 Firebase 設定。";
+      }
+    }
+
+    window.getPracticeSnapshot = getPersistableState;
+    window.getStoredPracticeSnapshot = () => safeParseJson(localStorage.getItem(STORAGE_KEY));
+    window.applyCloudSnapshot = (snapshot) => {
+      applySnapshot(snapshot);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
+      updateModeUi();
+      updateStats();
+      renderQuestion(chooseQuestion());
+    };
+    window.setSyncUi = ({ status, pill, buttonText } = {}) => {
+      if (status) els.syncStatus.textContent = status;
+      if (pill) els.storagePill.textContent = pill;
+      if (buttonText) els.googleBtn.textContent = buttonText;
+    };
+
     els.submitBtn.addEventListener("click", submitAnswer);
-    els.skipBtn.addEventListener("click", () => renderQuestion(chooseQuestion()));
+    els.skipBtn.addEventListener("click", () => {
+      renderQuestion(chooseQuestion());
+      saveProgress();
+    });
     els.nextBtn.addEventListener("click", () => {
       if (state.mode === "exam" && state.examIndex >= state.examQueue.length) {
         setMode("weak");
@@ -1210,9 +1642,124 @@
     els.randomMode.addEventListener("click", () => setMode("random"));
     els.examMode.addEventListener("click", () => setMode("exam"));
     els.resetBtn.addEventListener("click", reset);
+    els.syncSettingsBtn.addEventListener("click", () => {
+      els.syncSettings.classList.toggle("show");
+    });
+    els.saveFirebaseBtn.addEventListener("click", () => {
+      const config = safeParseJson(els.firebaseConfigInput.value);
+      if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.appId) {
+        els.syncStatus.textContent = "Firebase 設定格式不完整，至少需要 apiKey、authDomain、projectId、appId。";
+        return;
+      }
+      localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(config));
+      hydrateFirebaseSettings();
+      els.syncStatus.textContent = "Firebase 設定已儲存。請重新整理後按 Google 登入。";
+    });
+    els.clearFirebaseBtn.addEventListener("click", () => {
+      localStorage.removeItem(FIREBASE_CONFIG_KEY);
+      hydrateFirebaseSettings();
+    });
+    els.googleBtn.addEventListener("click", () => {
+      if (window.startGoogleSignIn) {
+        window.startGoogleSignIn();
+        return;
+      }
+      els.syncSettings.classList.add("show");
+      els.syncStatus.textContent = "Google 登入尚未啟用。請先填 Firebase 設定並重新整理。";
+    });
 
+    loadLocalProgress();
+    hydrateFirebaseSettings();
+    updateModeUi();
     updateStats();
     renderQuestion(chooseQuestion());
+  </script>
+  <script type="module">
+    const configText = localStorage.getItem("dsdsFinalPracticeFirebaseConfig");
+    const config = configText ? JSON.parse(configText) : null;
+    const hasConfig = !!(config?.apiKey && config?.authDomain && config?.projectId && config?.appId);
+
+    if (hasConfig) {
+      try {
+        const [{ initializeApp }, authLib, firestoreLib] = await Promise.all([
+          import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
+          import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"),
+          import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js")
+        ]);
+        const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = authLib;
+        const { getFirestore, doc, getDoc, setDoc } = firestoreLib;
+        const app = initializeApp(config);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        let currentUser = null;
+        let cloudReady = false;
+
+        function progressRef(user) {
+          return doc(db, "users", user.uid, "dsdsFinalPractice", "progress");
+        }
+
+        window.startGoogleSignIn = () => {
+          if (currentUser) return signOut(auth);
+          return signInWithPopup(auth, provider);
+        };
+
+        window.saveCloudProgress = async (snapshot) => {
+          if (!currentUser || !cloudReady) return;
+          await setDoc(progressRef(currentUser), {
+            ...snapshot,
+            uid: currentUser.uid,
+            email: currentUser.email || null
+          }, { merge: true });
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+          currentUser = user;
+          if (!user) {
+            cloudReady = false;
+            window.setSyncUi?.({
+              pill: "可登入",
+              buttonText: "Google 登入",
+              status: "已儲存 Firebase 設定；登入後可跨裝置同步。"
+            });
+            return;
+          }
+
+          window.setSyncUi?.({
+            pill: "雲端",
+            buttonText: "登出",
+            status: `已登入 ${user.displayName || user.email || "Google 帳號"}，正在同步學習紀錄。`
+          });
+
+          const ref = progressRef(user);
+          const cloudDoc = await getDoc(ref);
+          const localSnapshot = window.getStoredPracticeSnapshot?.() || window.getPracticeSnapshot?.();
+          if (cloudDoc.exists()) {
+            const cloudSnapshot = cloudDoc.data();
+            const cloudTime = Date.parse(cloudSnapshot.savedAt || 0);
+            const localTime = Date.parse(localSnapshot?.savedAt || 0);
+            if (cloudTime > localTime) {
+              window.applyCloudSnapshot?.(cloudSnapshot);
+            } else if (localSnapshot) {
+              await setDoc(ref, { ...localSnapshot, uid: user.uid, email: user.email || null }, { merge: true });
+            }
+          } else if (localSnapshot) {
+            await setDoc(ref, { ...localSnapshot, uid: user.uid, email: user.email || null }, { merge: true });
+          }
+          cloudReady = true;
+          window.setSyncUi?.({
+            pill: "雲端",
+            buttonText: "登出",
+            status: "Google 雲端同步已啟用；本機與雲端會一起保存。"
+          });
+        });
+      } catch (error) {
+        window.setSyncUi?.({
+          pill: "本機",
+          status: `Google 同步初始化失敗，目前使用本機保存。錯誤：${error.message}`
+        });
+      }
+    }
   </script>
 </body>
 </html>
