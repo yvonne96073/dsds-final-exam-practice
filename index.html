@@ -603,7 +603,7 @@
         </div>
         <div class="settings" id="syncSettings">
           <strong>Firebase 設定 JSON</strong>
-          <textarea id="firebaseConfigInput" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea>
+          <textarea id="firebaseConfigInput" placeholder='可以貼整段 const firebaseConfig = { ... }，或只貼 { ... }'></textarea>
           <div class="actions">
             <button class="btn secondary" id="saveFirebaseBtn" type="button">儲存設定</button>
             <button class="btn ghost" id="clearFirebaseBtn" type="button">清除設定</button>
@@ -1129,6 +1129,25 @@
       }
     }
 
+    function parseFirebaseConfigInput(text) {
+      const raw = (text || "").trim();
+      if (!raw) return null;
+      const direct = safeParseJson(raw);
+      if (direct) return direct;
+
+      const objectMatch = raw.match(/\{[\s\S]*\}/);
+      if (!objectMatch) return null;
+
+      const normalized = objectMatch[0]
+        .replace(/\/\/.*$/gm, "")
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/(['"])?([A-Za-z_$][\w$]*)\1\s*:/g, '"$2":')
+        .replace(/'/g, '"')
+        .replace(/,\s*}/g, "}");
+
+      return safeParseJson(normalized);
+    }
+
     function getPersistableState() {
       return {
         version: APP_VERSION,
@@ -1646,14 +1665,15 @@
       els.syncSettings.classList.toggle("show");
     });
     els.saveFirebaseBtn.addEventListener("click", () => {
-      const config = safeParseJson(els.firebaseConfigInput.value);
+      const config = parseFirebaseConfigInput(els.firebaseConfigInput.value);
       if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.appId) {
-        els.syncStatus.textContent = "Firebase 設定格式不完整，至少需要 apiKey、authDomain、projectId、appId。";
+        els.syncStatus.textContent = "Firebase 設定格式不完整。請直接貼 Firebase 畫面中 const firebaseConfig = { ... } 那整段，或只貼 { ... }。";
         return;
       }
       localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(config));
       hydrateFirebaseSettings();
-      els.syncStatus.textContent = "Firebase 設定已儲存。請重新整理後按 Google 登入。";
+      els.syncStatus.textContent = "Firebase 設定已儲存，頁面會自動重新載入以啟用 Google 登入。";
+      setTimeout(() => window.location.reload(), 900);
     });
     els.clearFirebaseBtn.addEventListener("click", () => {
       localStorage.removeItem(FIREBASE_CONFIG_KEY);
