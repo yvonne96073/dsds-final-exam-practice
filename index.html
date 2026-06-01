@@ -1158,7 +1158,7 @@
         const config = parseLooseObject(candidate);
         if (config?.apiKey && config?.authDomain && config?.projectId && config?.appId) return config;
       }
-      return null;
+      return parseFirebaseKeyValueLines(withoutComments);
     }
 
     function extractObjectLiteral(text, start) {
@@ -1196,6 +1196,17 @@
         .replace(/'/g, '"')
         .replace(/,\s*}/g, "}");
       return safeParseJson(normalized);
+    }
+
+    function parseFirebaseKeyValueLines(text) {
+      const keys = ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId"];
+      const config = {};
+      keys.forEach((key) => {
+        const pattern = new RegExp(`${key}\\s*:\\s*["']([^"']+)["']`);
+        const match = text.match(pattern);
+        if (match) config[key] = match[1];
+      });
+      return config.apiKey && config.authDomain && config.projectId && config.appId ? config : null;
     }
 
     function getPersistableState() {
