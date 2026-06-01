@@ -599,16 +599,6 @@
         <div class="sync-status" id="syncStatus">已啟用本機保存；重新整理不會消失。</div>
         <div class="account-actions">
           <button class="btn secondary" id="googleBtn" type="button">Google 登入</button>
-          <button class="btn ghost" id="syncSettingsBtn" type="button">同步設定</button>
-        </div>
-        <div class="settings" id="syncSettings">
-          <strong>Firebase 設定 JSON</strong>
-          <textarea id="firebaseConfigInput" placeholder='可以貼整段 const firebaseConfig = { ... }，或只貼 { ... }'></textarea>
-          <div class="actions">
-            <button class="btn secondary" id="saveFirebaseBtn" type="button">儲存設定</button>
-            <button class="btn ghost" id="clearFirebaseBtn" type="button">清除設定</button>
-          </div>
-          <div class="sync-status">Google 登入需要 Firebase 專案，並在 Auth 加入 yvonne96073.github.io 授權網域。</div>
         </div>
       </section>
 
@@ -700,7 +690,15 @@
 
     const topicOrder = ["chi", "stat", "tree", "ensemble", "eval", "project"];
     const STORAGE_KEY = "dsdsFinalPracticeProgressV2";
-    const FIREBASE_CONFIG_KEY = "dsdsFinalPracticeFirebaseConfig";
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDanSdGnavDCs1_9ojly67QKS_kK3QGO6k",
+      authDomain: "dsds-final-practice.firebaseapp.com",
+      projectId: "dsds-final-practice",
+      storageBucket: "dsds-final-practice.firebasestorage.app",
+      messagingSenderId: "467338708946",
+      appId: "1:467338708946:web:20c5c27d53c5a746046a0b"
+    };
+    window.DSDS_FIREBASE_CONFIG = FIREBASE_CONFIG;
     const APP_VERSION = 2;
     const mistakeLabel = {
       formula: "公式/低信心",
@@ -1088,11 +1086,6 @@
       storagePill: document.getElementById("storagePill"),
       syncStatus: document.getElementById("syncStatus"),
       googleBtn: document.getElementById("googleBtn"),
-      syncSettingsBtn: document.getElementById("syncSettingsBtn"),
-      syncSettings: document.getElementById("syncSettings"),
-      firebaseConfigInput: document.getElementById("firebaseConfigInput"),
-      saveFirebaseBtn: document.getElementById("saveFirebaseBtn"),
-      clearFirebaseBtn: document.getElementById("clearFirebaseBtn"),
       adaptiveMode: document.getElementById("adaptiveMode"),
       weakMode: document.getElementById("weakMode"),
       randomMode: document.getElementById("randomMode"),
@@ -1672,20 +1665,9 @@
       renderQuestion(chooseQuestion());
     }
 
-    function hasFirebaseConfig() {
-      const config = safeParseJson(localStorage.getItem(FIREBASE_CONFIG_KEY));
-      return !!(config?.apiKey && config?.authDomain && config?.projectId && config?.appId);
-    }
-
     function hydrateFirebaseSettings() {
-      els.firebaseConfigInput.value = localStorage.getItem(FIREBASE_CONFIG_KEY) || "";
-      if (hasFirebaseConfig()) {
-        els.storagePill.textContent = "可登入";
-        els.syncStatus.textContent = "已儲存 Firebase 設定，可使用 Google 登入同步。";
-      } else {
-        els.storagePill.textContent = "本機";
-        els.syncStatus.textContent = "已啟用本機保存；重新整理不會消失。若要跨裝置同步，請先填 Firebase 設定。";
-      }
+      els.storagePill.textContent = "可登入";
+      els.syncStatus.textContent = "可用本機保存；登入 Google 後可跨裝置同步。";
     }
 
     window.getPracticeSnapshot = getPersistableState;
@@ -1722,32 +1704,12 @@
     els.randomMode.addEventListener("click", () => setMode("random"));
     els.examMode.addEventListener("click", () => setMode("exam"));
     els.resetBtn.addEventListener("click", reset);
-    els.syncSettingsBtn.addEventListener("click", () => {
-      els.syncSettings.classList.toggle("show");
-    });
-    els.saveFirebaseBtn.addEventListener("click", () => {
-      const config = parseFirebaseConfigInput(els.firebaseConfigInput.value);
-      if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.appId) {
-        els.syncStatus.textContent = "Firebase 設定格式不完整。請直接貼 Firebase 畫面中 const firebaseConfig = { ... } 那整段，或只貼 { ... }。";
-        return;
-      }
-      localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(config));
-      hydrateFirebaseSettings();
-      els.syncStatus.textContent = "Firebase 設定已儲存，頁面會自動重新載入以啟用 Google 登入。";
-      alert("Firebase 設定已儲存。頁面會自動重新整理，重新整理後請按 Google 登入。");
-      setTimeout(() => window.location.reload(), 900);
-    });
-    els.clearFirebaseBtn.addEventListener("click", () => {
-      localStorage.removeItem(FIREBASE_CONFIG_KEY);
-      hydrateFirebaseSettings();
-    });
     els.googleBtn.addEventListener("click", () => {
       if (window.startGoogleSignIn) {
         window.startGoogleSignIn();
         return;
       }
-      els.syncSettings.classList.add("show");
-      els.syncStatus.textContent = "Google 登入尚未啟用。請先填 Firebase 設定並重新整理。";
+      els.syncStatus.textContent = "Google 登入正在初始化，請等幾秒後再按一次。";
     });
 
     loadLocalProgress();
@@ -1757,8 +1719,7 @@
     renderQuestion(chooseQuestion());
   </script>
   <script type="module">
-    const configText = localStorage.getItem("dsdsFinalPracticeFirebaseConfig");
-    const config = configText ? JSON.parse(configText) : null;
+    const config = window.DSDS_FIREBASE_CONFIG;
     const hasConfig = !!(config?.apiKey && config?.authDomain && config?.projectId && config?.appId);
 
     if (hasConfig) {
