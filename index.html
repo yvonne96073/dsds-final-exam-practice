@@ -1005,10 +1005,12 @@
       tree: "Decision Tree",
       ensemble: "Ensemble",
       eval: "Recall / Precision / ROC",
-      project: "Feature Importance"
+      project: "Feature Importance",
+      reg: "Regression / MLR / MARS",
+      portfolio: "Portfolio / Solver"
     };
 
-    const topicOrder = ["chi", "stat", "tree", "ensemble", "eval", "project"];
+    const topicOrder = ["chi", "stat", "tree", "ensemble", "eval", "project", "reg", "portfolio"];
     const STORAGE_KEY = "dsdsFinalPracticeProgressV2";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyDanSdGnavDCs1_9ojly67QKS_kK3QGO6k",
@@ -1059,6 +1061,17 @@
         ["Feature importance", "找出影響模型判斷的重要 input features，但不等於因果。"],
         ["Overfitting", "Training 好但 testing 差，表示模型可能背訓練資料。"],
         ["Final project", "不能只報 accuracy，要解釋指標、過度配適與重要變數。"]
+      ],
+      reg: [
+        ["Logit regression", "可處理數值與類別 features，並用顯著性/係數解釋 input features。"],
+        ["Biased regression", "Lasso 對應 city block / L1；Ridge 對應 Euclidean / L2；ElasticNet 是兩者折衷。"],
+        ["MLR / MARS", "R2 會隨 features 增加而上升；adjusted R2 會懲罰多餘 features。MARS 是 nonlinear regression。"]
+      ],
+      portfolio: [
+        ["Scenario", "Aggressive 最大化 return；Conservative 最小化 risk；Balanced 最大化 return - risk。"],
+        ["Solver", "設定 objective、decision variables 和 constraints，例如權重加總 100%。"],
+        ["Train/Test", "用 training set 找權重，再套到 testing set；可和 equally weighted policy 比較。"],
+        ["Sharpe ratio", "return divided by risk，越大通常越好。"]
       ]
     };
 
@@ -1361,6 +1374,995 @@
           ["D", "Use confusion matrix to compare two group means.", false, "Confusion matrix 評估分類模型，不比平均數。"],
           ["E", "Use feature importance to explain key input variables in a final project.", true, "Feature importance 用於模型解釋。"]
         ]
+      },
+      // Added from 6/3 lecture and previous final exam red-answer PDF
+      {
+              "id": "fe-2025-1",
+              "topic": "reg",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding Logit regression, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "able to accommodate numerical and categorical features",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "limited to handling a binary-class problem",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "C",
+                              "able to derive relative probabilities among distinct categories",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "able to demonstrate the degree of significance of input features",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "able to demonstrate the priorities (importance) of input features",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-2",
+              "topic": "reg",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding biased regression, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "Lasso is based on city block distance",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "Lasso is based on Euclidean distance",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "C",
+                              "Ridge is based on city block distance",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "D",
+                              "Ridge is based on Euclidean distance",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "ElasticNet is a compromise between Ridge and Lasso",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-3",
+              "topic": "reg",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding biased regression, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "Lasso can reduce the most number of input features",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "Ridge can reduce the most number of input features",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "C",
+                              "ElasticNet can reduce the most number of input features",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "D",
+                              "it fits the scenario with limited samples but numerous features",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "it fits the scenario with numerous samples but limited features",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-4",
+              "topic": "reg",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding multiple linear regression (MLR), which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "R2 indicates the degree of fitness",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "the more the features, the higher the R2",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "the fewer the features, the higher the R2",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "D",
+                              "the more the features, the higher the adjusted R2",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "E",
+                              "the fewer the features, the higher the adjusted R2",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-5",
+              "topic": "reg",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding multivariate adaptive regression splines (MARS), which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "it is linear regression",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "it is nonlinear regression",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "GCV can justify the importance of input features",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "the parameter, “degree”, is used to control the number of knots",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "both left-hand segment and right-hand segment around the knot can be concurrently selected",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-6",
+              "topic": "tree",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding a decision tree, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "information impurity before splitting is larger",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "information impurity after splitting is larger",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "C",
+                              "limited to categorical features",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "D",
+                              "the variable selected in the upper levels implies higher importance",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "the variable selected in the lower levels implies higher importance",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-7",
+              "topic": "tree",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Why use gain ratio rather than information gain when constructing a decision tree? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "punishing the predictor with big variances",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "avoid underfitting",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "C",
+                              "punishing the predictor with many levels",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "punishing the predictor with few levels",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "E",
+                              "avoid overfitting",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-8",
+              "topic": "ensemble",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Which algorithms can show the priorities of input features? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "KNN",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "random forest",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "logit regression",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "D",
+                              "gradient boosting",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "adaboost",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-9",
+              "topic": "tree",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding controlling the complexity of decision tree, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "decreasing the value of “minsplit” can simplify decision tree",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "increasing the value of “minsplit” can simplify decision tree",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "decreasing the value of “maxdepth” can simplify decision tree",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "increasing the value of “maxdepth” can simplify decision tree",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "E",
+                              "“minbucket” represents the minimal number of features required in leaf nodes",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-10",
+              "topic": "tree",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding a decision tree, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "C4.5/C5.0 uses Gini index to measure information impurity",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "CART uses Gini index to measure information impurity",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "C4.5/C5.0 uses entropy to measure information impurity",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "CART uses entropy to measure information impurity",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "E",
+                              "Gain ratio is for penalizing a user gives many redundant features",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-11",
+              "topic": "ensemble",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding random forest, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "each tree is based on different subsets",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "each tree is based on different features",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "“mtry” means the number of samples to grow a tree",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "D",
+                              "“mtry” means the number of features to grow a tree",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "able to demonstrate the priorities (importance) of input features",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-12",
+              "topic": "ensemble",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding random forest, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "“nodesize” means the number of nodes",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "“nodesize” means the number of features",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "C",
+                              "“nodesize” means the number of minimal samples in a node",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "it can be used for both classification and regression",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "“ntree” can be used to decide the performances are stable or not",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-13",
+              "topic": "ensemble",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Which algorithms can simultaneously perform regression as well as classification? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "random forest",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "gradient boosting",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "CART",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "KNN",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "logit regression",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-14",
+              "topic": "ensemble",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding ensemble learning, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "bagging forces “good” samples (easy to identify) to be learned more frequently",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "bagging forces “bad” samples (hard to identify) to be learned more frequently",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "C",
+                              "bagging asks all samples to be learned equally",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "adaboost forces “good” samples to be learned more frequently",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "E",
+                              "adaboost forces “bad” samples to be learned more frequently",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-15",
+              "topic": "ensemble",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding ensemble learning, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "classification is based on majority voting",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "regression is based on majority voting",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "C",
+                              "classification is based on the average",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "D",
+                              "regression is based on the average",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "weak machines can be combined into a strong system",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-16",
+              "topic": "project",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "What is overfitting? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "the model is too complex",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "the model is too simple",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "C",
+                              "training performance is poor",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "D",
+                              "testing performance is poor",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "too many samples",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-17",
+              "topic": "project",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "What is underfitting? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "the model is too complex",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "the model is too simple",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "training performance is poor",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "testing performance is poor",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "too many samples",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-18",
+              "topic": "eval",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding receiver operating characteristic (ROC), which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "its two axis are TP (true positive) and TN (true negative)",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "its two axis are TP and FP (false positive)",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "the bigger the AUC, the better the classifier",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "the smaller the AUC, the better the classifier",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "E",
+                              "the ideal point has an area size of 0.5",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-19",
+              "topic": "eval",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "For a binary-class problem, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "TP means type 1 error",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "B",
+                              "FP means type 1 error",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "TN means type 2 error",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ],
+                      [
+                              "D",
+                              "FN means type 2 error",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "recall and precision can be simultaneously reduced",
+                              false,
+                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                      ]
+              ]
+      },
+      {
+              "id": "fe-2025-20",
+              "topic": "ensemble",
+              "source": "Data Science Final Exam Questions_Answers Copy.pdf",
+              "prompt": "Regarding gradient boosting, which items are correct? (More than one correct answer)",
+              "options": [
+                      [
+                              "A",
+                              "gradient represents the slope",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "B",
+                              "gradient represents the moving direction of the features",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "C",
+                              "shrinkage means a learning rate",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "D",
+                              "shrinkage means a step size of moving",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ],
+                      [
+                              "E",
+                              "decreasing interection.depth can result in a simpler model",
+                              true,
+                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                      ]
+              ]
+      },
+      {
+              "id": "portfolio-1",
+              "topic": "portfolio",
+              "source": "6/3 - 1st class",
+              "prompt": "Regarding the aggressive portfolio scenario, which descriptions are correct?",
+              "options": [
+                      [
+                              "A",
+                              "The objective is to maximize annual return.",
+                              true,
+                              "Aggressive 情境追求最大報酬。"
+                      ],
+                      [
+                              "B",
+                              "The model should usually include a risk upper bound.",
+                              true,
+                              "老師示範即使 aggressive，也會限制 annual risk。"
+                      ],
+                      [
+                              "C",
+                              "The objective is to minimize risk.",
+                              false,
+                              "Minimize risk 是 conservative 情境。"
+                      ],
+                      [
+                              "D",
+                              "The weights across markets should sum to 100%.",
+                              true,
+                              "投資組合權重加總要等於 1 或 100%。"
+                      ],
+                      [
+                              "E",
+                              "The best solution must always be equally weighted.",
+                              false,
+                              "等權重只是 benchmark，不一定是最佳化目標。"
+                      ]
+              ]
+      },
+      {
+              "id": "portfolio-2",
+              "topic": "portfolio",
+              "source": "6/3 - 1st class",
+              "prompt": "Regarding the conservative portfolio scenario, which descriptions are correct?",
+              "options": [
+                      [
+                              "A",
+                              "The objective is to minimize risk.",
+                              true,
+                              "Conservative 情境重點是降低風險。"
+                      ],
+                      [
+                              "B",
+                              "The model may require annual return to be greater than a threshold.",
+                              true,
+                              "老師示範即使保守，也要求至少達到指定報酬。"
+                      ],
+                      [
+                              "C",
+                              "The objective is to maximize return minus risk.",
+                              false,
+                              "這是 balanced/trade-off 情境。"
+                      ],
+                      [
+                              "D",
+                              "All investment weights should sum to 100%.",
+                              true,
+                              "權重加總限制是三種情境共同需要。"
+                      ],
+                      [
+                              "E",
+                              "No constraint is needed because the investor is conservative.",
+                              false,
+                              "仍需要 return 與權重限制。"
+                      ]
+              ]
+      },
+      {
+              "id": "portfolio-3",
+              "topic": "portfolio",
+              "source": "6/3 - 1st class",
+              "prompt": "Regarding the balanced / trade-off scenario, which descriptions are correct?",
+              "options": [
+                      [
+                              "A",
+                              "The objective can be return minus risk.",
+                              true,
+                              "老師用 return - risk 表示平衡情境。"
+                      ],
+                      [
+                              "B",
+                              "It may require return to be above a threshold and risk below a threshold.",
+                              true,
+                              "平衡情境同時看報酬與風險限制。"
+                      ],
+                      [
+                              "C",
+                              "It ignores risk completely.",
+                              false,
+                              "平衡情境正是要同時處理 risk。"
+                      ],
+                      [
+                              "D",
+                              "It is related to designing portfolios for different STP target groups.",
+                              true,
+                              "老師把三種情境連到 STP / targeting。"
+                      ],
+                      [
+                              "E",
+                              "It is unrelated to decision variables.",
+                              false,
+                              "各市場權重就是 decision variables。"
+                      ]
+              ]
+      },
+      {
+              "id": "portfolio-4",
+              "topic": "portfolio",
+              "source": "6/3 - 1st class",
+              "prompt": "Regarding training and testing in Assignment 4, which descriptions are correct?",
+              "options": [
+                      [
+                              "A",
+                              "Use the training set to obtain portfolio weights.",
+                              true,
+                              "先用 training set 建立策略。"
+                      ],
+                      [
+                              "B",
+                              "Apply the training-set weights to the testing set.",
+                              true,
+                              "再把同一組權重套到 testing set。"
+                      ],
+                      [
+                              "C",
+                              "Testing set is used only to choose the best weights directly.",
+                              false,
+                              "testing 是檢查泛化，不應直接拿來調最佳權重。"
+                      ],
+                      [
+                              "D",
+                              "The testing result can differ from the training result.",
+                              true,
+                              "老師強調 recent three years 和 training set 很不同。"
+                      ],
+                      [
+                              "E",
+                              "If training optimization loses to equal weighting in testing, the strategy may not generalize well.",
+                              true,
+                              "這正是老師比較 equally weighted policy 的重點。"
+                      ]
+              ]
+      },
+      {
+              "id": "portfolio-5",
+              "topic": "portfolio",
+              "source": "6/3 - 1st class",
+              "prompt": "Regarding Sharpe ratio, which descriptions are correct?",
+              "options": [
+                      [
+                              "A",
+                              "It compares return with risk.",
+                              true,
+                              "老師用 return divided by risk 解釋。"
+                      ],
+                      [
+                              "B",
+                              "A larger Sharpe ratio is generally better.",
+                              true,
+                              "每單位風險換到更多報酬較好。"
+                      ],
+                      [
+                              "C",
+                              "It is unrelated to risk.",
+                              false,
+                              "Sharpe ratio 的分母就是 risk。"
+                      ],
+                      [
+                              "D",
+                              "It can be used to compare markets or strategies.",
+                              true,
+                              "老師用它比較不同市場表現。"
+                      ],
+                      [
+                              "E",
+                              "It means the total investment weights must equal 100%.",
+                              false,
+                              "這是 portfolio constraint，不是 Sharpe ratio。"
+                      ]
+              ]
+      },
+      {
+              "id": "portfolio-6",
+              "topic": "portfolio",
+              "source": "6/3 - 1st class",
+              "prompt": "Regarding portfolio risk and covariance, which descriptions are correct?",
+              "options": [
+                      [
+                              "A",
+                              "Portfolio risk should consider covariance among markets.",
+                              true,
+                              "老師提到 covariance 使問題更複雜。"
+                      ],
+                      [
+                              "B",
+                              "Risk can be understood through variance or standard deviation.",
+                              true,
+                              "課堂用 standard deviation/variance 表示波動。"
+                      ],
+                      [
+                              "C",
+                              "Covariance makes the Solver problem purely linear.",
+                              false,
+                              "老師說 covariance 涉及平方項，不是單純線性。"
+                      ],
+                      [
+                              "D",
+                              "Annual risk is related to the degree of up and down in returns.",
+                              true,
+                              "老師把 risk 解釋成上下波動程度。"
+                      ],
+                      [
+                              "E",
+                              "Daily return and annual return are exactly the same.",
+                              false,
+                              "Annual return 是由 daily return 年化而來。"
+                      ]
+              ]
       }
     ];
 
