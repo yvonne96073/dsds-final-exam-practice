@@ -490,6 +490,55 @@
       color: var(--muted);
     }
 
+    .wrong-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .wrong-actions button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .wrong-detail {
+      display: none;
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .wrong-item.open .wrong-detail {
+      display: grid;
+    }
+
+    .wrong-choice {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      display: grid;
+      gap: 4px;
+      background: #f8fafc;
+    }
+
+    .wrong-choice.correct {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+    }
+
+    .wrong-choice.missed,
+    .wrong-choice.trap {
+      border-color: #fecaca;
+      background: #fff1f2;
+    }
+
     .diagnosis {
       display: grid;
       gap: 8px;
@@ -3127,15 +3176,35 @@
       }
       els.wrongList.innerHTML = "";
       state.wrongBook.slice(0, 8).forEach((item) => {
+        const question = questionBank.find((q) => q.id === item.questionId);
         const div = document.createElement("div");
         div.className = "wrong-item";
+        div.dataset.questionId = item.questionId;
         const reasonText = item.reasons?.length ? item.reasons.map((key) => mistakeLabel[key]).join("、") : "待觀察";
         const statusText = item.isCorrect ? "答對但低信心" : "答錯";
         const statusClass = item.isCorrect ? "複習確認" : "錯題";
+        const detailHtml = question ? question.options.map(([letter, text, answer, reason]) => {
+          const picked = item.selected.includes(letter);
+          const choiceClass = answer && picked ? "correct" : (answer ? "missed" : (picked ? "trap" : ""));
+          const status = answer ? "正確敘述" : "錯誤陷阱";
+          const pickedText = picked ? "你有選" : (answer ? "你漏選" : "你未選");
+          return `
+            <div class="wrong-choice ${choiceClass}">
+              <strong>${letter}. ${status}｜${pickedText}</strong>
+              <div>${text}</div>
+              <small>${reason}</small>
+            </div>
+          `;
+        }).join("") : `<div class="sync-status">找不到這題的題庫資料，可能是舊版紀錄。請重新作答一次更新。</div>`;
         div.innerHTML = `
           <small>${topics[item.topic]}｜${statusClass}｜${reasonText}｜累積 ${item.attempts || 1} 次</small>
           <strong>${item.prompt}</strong>
           <small>${statusText}｜你選：${item.selected.join(", ") || "-"}｜正解：${item.correct.join(", ")}</small>
+          <div class="wrong-actions">
+            <button type="button" data-action="toggle-review" data-question-id="${item.questionId}">看詳解</button>
+            <button type="button" data-action="retry-question" data-question-id="${item.questionId}">重練這題</button>
+          </div>
+          <div class="wrong-detail">${detailHtml}</div>
         `;
         els.wrongList.appendChild(div);
       });
@@ -3172,6 +3241,31 @@
       renderQuestion(chooseQuestion());
     }
 
+    function handleWrongListClick(event) {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const questionId = button.dataset.questionId;
+      const item = state.wrongBook.find((entry) => entry.questionId === questionId);
+      const question = questionBank.find((entry) => entry.id === questionId);
+      if (!item || !question) return;
+
+      if (button.dataset.action === "toggle-review") {
+        const card = button.closest(".wrong-item");
+        const isOpen = card.classList.toggle("open");
+        button.textContent = isOpen ? "收起詳解" : "看詳解";
+        return;
+      }
+
+      if (button.dataset.action === "retry-question") {
+        state.mode = "weak";
+        updateModeUi();
+        renderQuestion(question);
+        updateStats();
+        saveProgress();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
     function hydrateFirebaseSettings() {
       els.storagePill.textContent = "可登入";
       els.syncStatus.textContent = "可用本機保存；登入 Google 後可跨裝置同步。";
@@ -3206,6 +3300,7 @@
       updateStats();
     });
     els.reviewBtn.addEventListener("click", renderReview);
+    els.wrongList.addEventListener("click", handleWrongListClick);
     els.adaptiveMode.addEventListener("click", () => setMode("adaptive"));
     els.weakMode.addEventListener("click", () => setMode("weak"));
     els.randomMode.addEventListener("click", () => setMode("random"));
