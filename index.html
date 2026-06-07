@@ -1060,10 +1060,11 @@
       project: [
         ["Feature importance", "找出影響模型判斷的重要 input features，但不等於因果。"],
         ["Overfitting", "Training 好但 testing 差，表示模型可能背訓練資料。"],
+        ["Underfitting", "Training 和 testing 都差，通常是模型太簡單，基本 pattern 沒學到。"],
         ["Final project", "不能只報 accuracy，要解釋指標、過度配適與重要變數。"]
       ],
       reg: [
-        ["Logit regression", "可處理數值與類別 features，並用顯著性/係數解釋 input features。"],
+        ["Logit regression", "Binary classification 模型，先輸出機率，再用 threshold 轉成類別。"],
         ["Biased regression", "Lasso 對應 city block / L1；Ridge 對應 Euclidean / L2；ElasticNet 是兩者折衷。"],
         ["MLR / MARS", "R2 會隨 features 增加而上升；adjusted R2 會懲罰多餘 features。MARS 是 nonlinear regression。"]
       ],
@@ -2134,6 +2135,149 @@
                               true,
                               "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
                       ]
+              ]
+      },
+      {
+              "id": "scope-2026-stat-1",
+              "topic": "stat",
+              "source": "老師公布期末考範圍 2026/6/7",
+              "prompt": "For the statistics scope, which method-topic matches are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "Chi-square test: categorical variable vs categorical variable association.", true, "Statistics 範圍要先會依 X/Y 型態選方法；Chi-square 對應類別 vs 類別。"],
+                      ["B", "t-test: compare two group means.", true, "t-test 是比較兩組平均數。"],
+                      ["C", "ANOVA: compare means among three or more groups.", true, "ANOVA 是 t-test 的延伸，處理三組以上平均數。"],
+                      ["D", "F-test: compare two proportions.", false, "F-test 看變異數；比例比較是 proportion test。"],
+                      ["E", "p-value: directly gives the probability that H0 is true.", false, "p-value 不是 H0 為真的機率，這是常見陷阱。"]
+              ]
+      },
+      {
+              "id": "scope-2026-logit-1",
+              "topic": "reg",
+              "source": "老師公布期末考範圍 2026/6/7 / Unit4_basic_classifier.R",
+              "prompt": "Regarding Logit Regression in this exam scope, which descriptions are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "It is commonly used for binary classification.", true, "Logit Regression 名字有 regression，但這裡是二元分類模型。"],
+                      ["B", "It outputs a probability before converting the result into a class.", true, "glm(..., family=binomial(link='logit')) 會先得到機率。"],
+                      ["C", "A threshold can be used to convert probability into positive/negative class.", true, "例如 probability >= 0.5 判成 positive。"],
+                      ["D", "It directly predicts a continuous numeric Y like ordinary MLR.", false, "連續數值 Y 是 MLR/其他 regression；Logit 這裡處理類別。"],
+                      ["E", "Its result can be evaluated using confusion matrix and ROC/AUC.", true, "Logit 是分類模型，所以能用分類評估指標。"]
+              ]
+      },
+      {
+              "id": "scope-2026-logit-2",
+              "topic": "reg",
+              "source": "老師公布期末考範圍 2026/6/7 / Unit4_basic_classifier.R",
+              "prompt": "When interpreting Logit Regression coefficients, which statements are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "A positive coefficient suggests the event's log-odds tend to increase as the feature increases.", true, "beta 為正代表該 feature 增加時，目標事件傾向更可能發生。"],
+                      ["B", "exp(beta) can be interpreted as an odds ratio.", true, "Logit 常用 odds ratio 解釋係數。"],
+                      ["C", "Odds ratio greater than 1 means the event odds increase.", true, "OR > 1 表示 odds 上升。"],
+                      ["D", "A coefficient always proves causal effect.", false, "係數是模型關聯，不直接證明因果。"],
+                      ["E", "Categorical features may need suitable encoding before being used.", true, "類別特徵可用，但要合適編碼。"]
+              ]
+      },
+      {
+              "id": "scope-2026-biased-1",
+              "topic": "reg",
+              "source": "老師公布期末考範圍 2026/6/7 / DS8_advanced_regressor.pdf",
+              "prompt": "Regarding Biased Regression, which matches are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "Ridge Regression uses L2 penalty / Euclidean distance.", true, "Ridge = L2 = Euclidean，是期末考古題重點。"],
+                      ["B", "Lasso Regression uses L1 penalty / city block distance.", true, "Lasso = L1 = city block，是期末考古題重點。"],
+                      ["C", "ElasticNet combines Ridge and Lasso ideas.", true, "ElasticNet 是 L1 與 L2 的折衷。"],
+                      ["D", "Ridge usually removes the most input features by setting many coefficients exactly to zero.", false, "把係數壓成 0 做變數選擇，通常往 Lasso 想。"],
+                      ["E", "Biased regression can help when features are many but samples are limited.", true, "DS8 用 predictors 多、samples 少說明為何需要 biased regression。"]
+              ]
+      },
+      {
+              "id": "scope-2026-biased-2",
+              "topic": "reg",
+              "source": "老師公布期末考範圍 2026/6/7 / Unit5_basic_regressor.R",
+              "prompt": "Which statements about Ridge, Lasso, and ElasticNet are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "Lasso is good for variable selection.", true, "Lasso 可以把部分係數壓成 0，因此適合選變數。"],
+                      ["B", "Ridge is useful for multicollinearity and coefficient shrinkage.", true, "Ridge 常用來穩定多重共線性問題下的係數。"],
+                      ["C", "ElasticNet balances L1 and L2 penalties.", true, "ElasticNet 同時考慮 Lasso/Ridge 的 penalty。"],
+                      ["D", "All biased regression methods are unregularized MLR.", false, "Biased regression 的核心就是加入 penalty / regularization。"],
+                      ["E", "Biased regression intentionally trades a little bias for stability.", true, "它不是亂偏誤，而是用 bias 換取模型更穩定。"]
+              ]
+      },
+      {
+              "id": "scope-2026-mlr-1",
+              "topic": "reg",
+              "source": "老師公布期末考範圍 2026/6/7 / DS8_advanced_regressor.pdf",
+              "prompt": "Regarding Multiple Linear Regression (MLR), which descriptions are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "MLR predicts a continuous numeric dependent variable.", true, "MLR 的 Y 是數值型連續變數。"],
+                      ["B", "MLR can include multiple independent variables.", true, "Multiple 指多個 X。"],
+                      ["C", "R2 usually does not decrease when more features are added.", true, "R2 常隨 feature 增加而上升或不降，所以不能只看 R2。"],
+                      ["D", "Adjusted R2 penalizes unnecessary features.", true, "Adjusted R2 會修正多餘特徵造成的假提升。"],
+                      ["E", "MLR is the same as binary classification.", false, "Binary classification 是類別 Y；MLR 是數值 Y。"]
+              ]
+      },
+      {
+              "id": "scope-2026-gain-1",
+              "topic": "tree",
+              "source": "老師公布期末考範圍 2026/6/7 / DS7_advanced_classifier.pdf",
+              "prompt": "Regarding Gain Ratio, which descriptions are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "Gain Ratio is related to Information Gain and Entropy.", true, "Gain Ratio 是 entropy / information gain 系列概念。"],
+                      ["B", "It adjusts Information Gain's preference for many-valued splits.", true, "這就是 Gain Ratio 最常考的理由。"],
+                      ["C", "It is mainly associated with C5.0 rather than CART.", true, "C5.0 走 entropy/gain/gain ratio；CART 走 Gini。"],
+                      ["D", "It is used to intentionally increase impurity after splitting.", false, "決策樹要降低混亂，不是增加混亂。"],
+                      ["E", "It helps choose better splitting variables in decision trees.", true, "它是選 split 的指標之一。"]
+              ]
+      },
+      {
+              "id": "scope-2026-ensemble-1",
+              "topic": "ensemble",
+              "source": "老師公布期末考範圍 2026/6/7 / DS7_advanced_classifier.pdf",
+              "prompt": "Regarding Ensemble Learning, which descriptions are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "It combines multiple weak or unstable models into a stronger system.", true, "Ensemble 的核心是多個模型共同決策。"],
+                      ["B", "For classification, ensemble predictions can be based on majority voting.", true, "分類常用投票。"],
+                      ["C", "For regression, ensemble predictions can be based on averaging.", true, "回歸常用平均。"],
+                      ["D", "Bagging and boosting are exactly the same training process.", false, "Bagging 偏平行，Boosting 是循序。"],
+                      ["E", "Random Forest is an ensemble method based on many decision trees.", true, "Random Forest 是典型 tree ensemble。"]
+              ]
+      },
+      {
+              "id": "scope-2026-fit-1",
+              "topic": "project",
+              "source": "老師公布期末考範圍 2026/6/7",
+              "prompt": "Which statements correctly distinguish overfitting and underfitting? (More than one correct answer)",
+              "options": [
+                      ["A", "Overfitting often means training performance is good but testing performance is poor.", true, "Overfitting 是背 training，泛化到 testing 變差。"],
+                      ["B", "Underfitting often means both training and testing performance are poor.", true, "Underfitting 是模型太簡單，基本 pattern 都沒學到。"],
+                      ["C", "Overfitting often happens when a model is too complex.", true, "太深的樹、太多特徵都可能 overfit。"],
+                      ["D", "Underfitting means the model perfectly memorizes the training data.", false, "這是 overfitting 的方向，不是 underfitting。"],
+                      ["E", "A good fit should generalize reasonably well to testing data.", true, "考試會用 train/test 表現判斷模型是否可泛化。"]
+              ]
+      },
+      {
+              "id": "scope-2026-binary-roc-1",
+              "topic": "eval",
+              "source": "老師公布期末考範圍 2026/6/7 / DS6_basic_classifier.pdf",
+              "prompt": "For Binary Classification and ROC, which statements are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "The positive class must be defined before interpreting TP, FP, FN, and TN.", true, "四格表的意義都依 positive class 而定。"],
+                      ["B", "FP can be understood as a Type I error in the binary-class question style.", true, "去年考古題把 FP 對到 type 1 error。"],
+                      ["C", "FN can be understood as a Type II error in the binary-class question style.", true, "去年考古題把 FN 對到 type 2 error。"],
+                      ["D", "ROC uses TPR/Recall and FPR under different thresholds.", true, "ROC 不是看 precision，而是 TPR vs FPR。"],
+                      ["E", "AUC smaller is always better.", false, "AUC 越大通常越好。"]
+              ]
+      },
+      {
+              "id": "scope-2026-gradient-1",
+              "topic": "ensemble",
+              "source": "老師公布期末考範圍 2026/6/7 / DS7_advanced_classifier.pdf",
+              "prompt": "Regarding Gradient Boosting, which descriptions are correct? (More than one correct answer)",
+              "options": [
+                      ["A", "It trains models sequentially.", true, "Gradient Boosting 是循序式 boosting。"],
+                      ["B", "Later models are built to correct the previous model's errors.", true, "後面模型修正前面的錯誤方向。"],
+                      ["C", "Shrinkage can be interpreted as a learning rate or step size.", true, "去年考古題反紅：shrinkage = learning rate / step size。"],
+                      ["D", "Increasing interaction depth always makes the model simpler.", false, "降低 interaction.depth 才會讓模型更簡單。"],
+                      ["E", "Gradient Boosting can be used for regression and classification.", true, "老師的 DS8/DS7 都把 GB 放在可做預測與分類的模型線。"]
               ]
       },
       {
