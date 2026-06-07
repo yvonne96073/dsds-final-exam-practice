@@ -3284,7 +3284,18 @@
         els.resultBox.textContent = `答錯了。正確答案是 ${correct.join(", ")}。下一題會優先用「${topics[question.topic]}」換一種方式考你。`;
       }
 
-      if (mistakeReasons.length) {
+      if (isCorrect && confidence !== "sure") {
+        const confidenceText = confidence === "guess" ? "我是猜的" : "有點懂";
+        els.diagnosisBox.style.display = "grid";
+        els.diagnosisBox.innerHTML = `
+          <strong>低信心答對提醒</strong>
+          <ul>
+            <li>你選的是「${confidenceText}」，代表這題雖然全對，但目前比較像尚未穩定掌握或可能猜中。</li>
+            <li>這題在考：${inferQuestionConcept(question)}</li>
+            <li>系統會把它放進複習清單，下一次用同概念換一種問法確認你是真的會。</li>
+          </ul>
+        `;
+      } else if (mistakeReasons.length) {
         els.diagnosisBox.style.display = "grid";
         els.diagnosisBox.innerHTML = `
           <strong>系統判斷的錯因</strong>
