@@ -379,6 +379,11 @@
       color: var(--danger);
     }
 
+    .result.review {
+      background: #fff7ed;
+      color: #9a3412;
+    }
+
     .explain-list {
       display: grid;
       gap: 10px;
@@ -945,6 +950,7 @@
       <section class="panel question" id="questionPanel">
         <div class="meta">
           <span class="pill" id="topicPill">Topic</span>
+          <span class="pill" id="questionCounter">第 1 題</span>
           <span id="sourceText"></span>
         </div>
         <h2 id="questionText"></h2>
@@ -978,7 +984,7 @@
         <div class="dash-grid">
           <div class="dash-card"><span>累積正確率</span><strong id="dashAccuracy">-</strong></div>
           <div class="dash-card"><span>最需要補強</span><strong id="dashWeakest">尚未累積</strong></div>
-          <div class="dash-card"><span>錯題本</span><strong id="dashWrongCount">0 題</strong></div>
+          <div class="dash-card"><span>複習清單</span><strong id="dashWrongCount">0 題</strong></div>
         </div>
         <div>
           <h2>單元弱點</h2>
@@ -989,7 +995,7 @@
           <div class="bars" id="mistakeBars"></div>
         </div>
         <div>
-          <h2>錯題本</h2>
+          <h2>複習清單</h2>
           <div class="wrong-list" id="wrongList"></div>
         </div>
       </section>
@@ -2559,6 +2565,7 @@
       modeHelp: document.getElementById("modeHelp"),
       resetBtn: document.getElementById("resetBtn"),
       topicPill: document.getElementById("topicPill"),
+      questionCounter: document.getElementById("questionCounter"),
       sourceText: document.getElementById("sourceText"),
       questionText: document.getElementById("questionText"),
       optionsForm: document.getElementById("optionsForm"),
@@ -2804,6 +2811,7 @@
       state.locked = false;
       state.history.push(question.id);
       els.topicPill.textContent = topics[question.topic];
+      updateQuestionCounter();
       els.sourceText.textContent = question.source;
       els.questionText.textContent = question.prompt;
       els.optionsForm.innerHTML = "";
@@ -2837,6 +2845,18 @@
 
     function getConfidence() {
       return els.confidencePanel.querySelector("input[name='confidence']:checked")?.value || "partial";
+    }
+
+    function updateQuestionCounter() {
+      if (!els.questionCounter) return;
+      if (state.mode === "exam") {
+        const total = state.examQueue.length || state.examTotal;
+        const current = Math.min(state.examIndex + 1, total || state.examTotal);
+        els.questionCounter.textContent = `模擬考第 ${current} / ${total || state.examTotal} 題${state.locked ? "（已作答）" : ""}`;
+        return;
+      }
+      const current = Math.max(1, state.answered + (state.locked ? 0 : 1));
+      els.questionCounter.textContent = `第 ${current} 題${state.locked ? "（已作答）" : ""}`;
     }
 
     function inferMistakes(question, selected, correct, isCorrect, confidence) {
@@ -2897,6 +2917,7 @@
       const mistakeReasons = inferMistakes(question, selected, correct, isCorrect, confidence);
       const reasonKeys = mistakeReasons.map(([key]) => key);
       state.locked = true;
+      updateQuestionCounter();
       state.answered += 1;
       state.topicAttempts[question.topic] += 1;
       state.confidenceCounts[confidence] += 1;
@@ -2971,11 +2992,11 @@
     function renderFeedback(question, selected, correct, isCorrect, confidence, mistakeReasons) {
       els.feedbackPanel.classList.add("show");
       const fullyMastered = isCorrect && confidence === "sure";
-      els.resultBox.className = `result ${fullyMastered ? "ok" : "bad"}`;
+      els.resultBox.className = `result ${fullyMastered ? "ok" : (isCorrect ? "review" : "bad")}`;
       if (fullyMastered) {
         els.resultBox.textContent = "答對且很確定。這題暫時標為已掌握。";
       } else if (isCorrect) {
-        els.resultBox.textContent = `答對了，但你的把握度不是「很確定」。系統會再安排「${topics[question.topic]}」變形題確認。`;
+        els.resultBox.textContent = `答對了。因為你的把握度不是「很確定」，這題會放進複習清單，系統會再安排「${topics[question.topic]}」變形題確認。`;
       } else {
         els.resultBox.textContent = `答錯了。正確答案是 ${correct.join(", ")}。下一題會優先用「${topics[question.topic]}」換一種方式考你。`;
       }
@@ -3035,6 +3056,7 @@
     }
 
     function updateStats() {
+      updateQuestionCounter();
       els.answered.textContent = String(state.answered);
       els.accuracy.textContent = state.answered ? `${Math.round((state.correct / state.answered) * 100)}%` : "-";
       els.examProgress.textContent = state.mode === "exam"
@@ -3100,7 +3122,7 @@
       );
 
       if (!state.wrongBook.length) {
-        els.wrongList.innerHTML = `<div class="sync-status">目前沒有錯題。答錯或低信心答對的題目會自動收進來。</div>`;
+        els.wrongList.innerHTML = `<div class="sync-status">目前沒有需要複習的題目。答錯或低信心答對的題目會自動收進來。</div>`;
         return;
       }
       els.wrongList.innerHTML = "";
@@ -3108,10 +3130,12 @@
         const div = document.createElement("div");
         div.className = "wrong-item";
         const reasonText = item.reasons?.length ? item.reasons.map((key) => mistakeLabel[key]).join("、") : "待觀察";
+        const statusText = item.isCorrect ? "答對但低信心" : "答錯";
+        const statusClass = item.isCorrect ? "複習確認" : "錯題";
         div.innerHTML = `
-          <small>${topics[item.topic]}｜${reasonText}｜累積 ${item.attempts || 1} 次</small>
+          <small>${topics[item.topic]}｜${statusClass}｜${reasonText}｜累積 ${item.attempts || 1} 次</small>
           <strong>${item.prompt}</strong>
-          <small>你選：${item.selected.join(", ") || "-"}｜正解：${item.correct.join(", ")}</small>
+          <small>${statusText}｜你選：${item.selected.join(", ") || "-"}｜正解：${item.correct.join(", ")}</small>
         `;
         els.wrongList.appendChild(div);
       });
