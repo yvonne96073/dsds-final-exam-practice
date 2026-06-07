@@ -2809,6 +2809,8 @@
       els.optionsForm.innerHTML = "";
       els.feedbackPanel.classList.remove("show");
       els.reviewBox.classList.remove("show");
+      els.reviewBtn.textContent = "看本題觀念表";
+      els.reviewBtn.setAttribute("aria-expanded", "false");
       els.submitBtn.disabled = false;
       els.confidencePanel.querySelector('input[value="partial"]').checked = true;
 
@@ -3008,13 +3010,28 @@
     }
 
     function renderReview() {
+      if (!state.current) return;
+      const isOpen = els.reviewBox.classList.contains("show");
+      if (isOpen) {
+        els.reviewBox.classList.remove("show");
+        els.reviewBtn.textContent = "看本題觀念表";
+        els.reviewBtn.setAttribute("aria-expanded", "false");
+        return;
+      }
+
       const topic = state.current.topic;
-      const rows = conceptNotes[topic].map(([key, note]) => `<tr><th>${key}</th><td>${note}</td></tr>`).join("");
+      const notes = conceptNotes[topic] || [["本題重點", "這題目前沒有獨立觀念表，請先看選項解析。"]];
+      const rows = notes.map(([key, note]) => `<tr><th>${key}</th><td>${note}</td></tr>`).join("");
       els.reviewBox.innerHTML = `
         <h2 style="font-size:1.05rem;margin:0;">${topics[topic]} 觀念表</h2>
         <table class="mini-table"><tbody>${rows}</tbody></table>
       `;
-      els.reviewBox.classList.toggle("show");
+      els.reviewBox.classList.add("show");
+      els.reviewBtn.textContent = "收起本題觀念表";
+      els.reviewBtn.setAttribute("aria-expanded", "true");
+      requestAnimationFrame(() => {
+        els.reviewBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
     }
 
     function updateStats() {
