@@ -555,6 +555,79 @@
       gap: 4px;
     }
 
+    .notes-rail {
+      padding: 30px 28px 48px 0;
+      align-self: start;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    .notes-toggle {
+      width: 100%;
+      border: 1px solid #cfe0dd;
+      border-radius: 8px;
+      min-height: 44px;
+      padding: 10px 12px;
+      background: #fff;
+      color: #0b5f59;
+      font-weight: 850;
+      cursor: pointer;
+      box-shadow: 0 10px 28px rgba(23, 32, 42, .05);
+    }
+
+    .mistake-notes {
+      display: none;
+      max-height: calc(100vh - 112px);
+      overflow: auto;
+      border: 1px solid #dce7e5;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      gap: 12px;
+    }
+
+    .notes-rail.open .mistake-notes {
+      display: grid;
+    }
+
+    .mistake-notes h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .note-muted {
+      margin: 0;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .note-card {
+      display: grid;
+      gap: 8px;
+      border: 1px solid #e2e8ee;
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 12px;
+    }
+
+    .note-card strong {
+      color: #0b5f59;
+    }
+
+    .note-card ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .note-card li {
+      margin: 4px 0;
+    }
+
     .diagnosis {
       display: grid;
       gap: 8px;
@@ -646,7 +719,7 @@
     }
 
     .app {
-      grid-template-columns: 312px minmax(0, 1fr);
+      grid-template-columns: 312px minmax(0, 1fr) minmax(240px, 340px);
     }
 
     aside {
@@ -923,6 +996,27 @@
       max-width: none;
     }
 
+    @media (max-width: 1180px) {
+      .app {
+        grid-template-columns: 280px minmax(0, 1fr);
+      }
+
+      .notes-rail {
+        position: fixed;
+        top: auto;
+        right: 18px;
+        bottom: 18px;
+        z-index: 20;
+        width: min(360px, calc(100vw - 36px));
+        height: auto;
+        padding: 0;
+      }
+
+      .mistake-notes {
+        max-height: min(560px, calc(100vh - 92px));
+      }
+    }
+
     @media (max-width: 920px) {
       .app {
         grid-template-columns: 1fr;
@@ -937,6 +1031,11 @@
 
       main {
         padding: 18px;
+      }
+
+      .notes-rail {
+        right: 14px;
+        bottom: 14px;
       }
     }
 
@@ -1067,6 +1166,15 @@
 
       <section class="panel review-box" id="reviewBox"></section>
     </main>
+
+    <section class="notes-rail" id="notesRail" aria-label="錯題筆記">
+      <button class="notes-toggle" id="notesToggle" type="button" aria-expanded="false">打開錯題筆記</button>
+      <div class="mistake-notes" id="mistakeNotes">
+        <h2>錯題筆記</h2>
+        <p class="note-muted">整理你目前答錯或低信心答對的觀念。作答時先收起，需要複習再打開。</p>
+        <div id="mistakeNotesContent"></div>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -2613,7 +2721,8 @@
       answerLog: [],
       wrongBook: [],
       lastWrongTopic: null,
-      locked: false
+      locked: false,
+      notesOpen: false
     };
 
     const els = {
@@ -2651,7 +2760,10 @@
       dashWrongCount: document.getElementById("dashWrongCount"),
       topicBars: document.getElementById("topicBars"),
       mistakeBars: document.getElementById("mistakeBars"),
-      wrongList: document.getElementById("wrongList")
+      wrongList: document.getElementById("wrongList"),
+      notesRail: document.getElementById("notesRail"),
+      notesToggle: document.getElementById("notesToggle"),
+      mistakeNotesContent: document.getElementById("mistakeNotesContent")
     };
 
     function safeParseJson(text, fallback = null) {
@@ -2761,7 +2873,8 @@
         confidenceCounts: state.confidenceCounts,
         answerLog: state.answerLog.slice(-200),
         wrongBook: state.wrongBook.slice(-80),
-        lastWrongTopic: state.lastWrongTopic
+        lastWrongTopic: state.lastWrongTopic,
+        notesOpen: state.notesOpen
       };
     }
 
@@ -2776,6 +2889,7 @@
       state.examTotal = Number(snapshot.examTotal) || 20;
       state.studyCursor = Number(snapshot.studyCursor) || 0;
       state.lastWrongTopic = snapshot.lastWrongTopic || null;
+      state.notesOpen = Boolean(snapshot.notesOpen);
       Object.keys(topics).forEach((key) => {
         state.weak[key] = Number(snapshot.weak?.[key]) || 0;
         state.topicAttempts[key] = Number(snapshot.topicAttempts?.[key]) || 0;
@@ -3171,6 +3285,62 @@
       });
     }
 
+    function shortQuestionTitle(prompt) {
+      return prompt
+        .replace(/\s*\(More than one correct answer\)/i, "")
+        .replace(/^Regarding\s+/i, "")
+        .slice(0, 82);
+    }
+
+    function buildWrongConceptNote(item) {
+      const question = questionBank.find((entry) => entry.id === item.questionId);
+      const missed = item.lastMissed?.length ? `漏選 ${item.lastMissed.join(", ")}` : "";
+      const wrong = item.lastWrongSelected?.length ? `誤選 ${item.lastWrongSelected.join(", ")}` : "";
+      const action = [missed, wrong].filter(Boolean).join("；") || (item.isCorrect ? "答對但信心不足" : "需要重看選項判斷");
+      let keyPoint = question?.explanation || conceptNotes[item.topic]?.[0]?.[1] || "先回到本題選項詳解，確認每個選項為何正確或錯誤。";
+      if (keyPoint.length > 230) keyPoint = `${keyPoint.slice(0, 230)}...`;
+      const reasons = item.reasons?.length ? item.reasons.map((key) => mistakeLabel[key]).join("、") : "概念判斷";
+      return { question, action, keyPoint, reasons };
+    }
+
+    function renderMistakeNotes() {
+      els.notesRail.classList.toggle("open", state.notesOpen);
+      els.notesToggle.textContent = state.notesOpen ? "收起錯題筆記" : "打開錯題筆記";
+      els.notesToggle.setAttribute("aria-expanded", String(state.notesOpen));
+
+      if (!state.wrongBook.length) {
+        els.mistakeNotesContent.innerHTML = `<div class="sync-status">目前沒有錯題筆記。答錯或低信心答對後，這裡會自動整理成可複習的小抄。</div>`;
+        return;
+      }
+
+      const recent = state.wrongBook.slice(0, 6);
+      const grouped = recent.reduce((acc, item) => {
+        const bucket = acc[item.topic] || { topic: item.topic, items: [] };
+        bucket.items.push(item);
+        acc[item.topic] = bucket;
+        return acc;
+      }, {});
+
+      els.mistakeNotesContent.innerHTML = Object.values(grouped).map((group) => {
+        const items = group.items.map((item) => {
+          const note = buildWrongConceptNote(item);
+          return `
+            <li>
+              <strong>${shortQuestionTitle(item.prompt)}</strong>
+              <div>${note.action}｜${note.reasons}</div>
+              <div>${note.keyPoint}</div>
+            </li>
+          `;
+        }).join("");
+        return `
+          <article class="note-card">
+            <strong>${topics[group.topic]}</strong>
+            <ul>${items}</ul>
+          </article>
+        `;
+      }).join("");
+    }
+
     function renderDashboard() {
       els.dashAccuracy.textContent = state.answered ? `${Math.round((state.correct / state.answered) * 100)}%` : "-";
       const weakSorted = Object.entries(state.weak).sort((a, b) => b[1] - a[1]);
@@ -3196,6 +3366,7 @@
 
       if (!state.wrongBook.length) {
         els.wrongList.innerHTML = `<div class="sync-status">目前沒有需要複習的題目。答錯或低信心答對的題目會自動收進來。</div>`;
+        renderMistakeNotes();
         return;
       }
       els.wrongList.innerHTML = "";
@@ -3238,6 +3409,7 @@
         `;
         els.wrongList.appendChild(div);
       });
+      renderMistakeNotes();
     }
 
     function setMode(mode) {
@@ -3265,10 +3437,17 @@
 
     function reset() {
       resetCollections();
+      state.notesOpen = false;
       localStorage.removeItem(STORAGE_KEY);
       updateStats();
       saveProgress();
       renderQuestion(chooseQuestion());
+    }
+
+    function toggleMistakeNotes() {
+      state.notesOpen = !state.notesOpen;
+      renderMistakeNotes();
+      saveProgress();
     }
 
     function handleWrongListClick(event) {
@@ -3331,6 +3510,7 @@
     });
     els.reviewBtn.addEventListener("click", renderReview);
     els.wrongList.addEventListener("click", handleWrongListClick);
+    els.notesToggle.addEventListener("click", toggleMistakeNotes);
     els.adaptiveMode.addEventListener("click", () => setMode("adaptive"));
     els.weakMode.addEventListener("click", () => setMode("weak"));
     els.randomMode.addEventListener("click", () => setMode("random"));
