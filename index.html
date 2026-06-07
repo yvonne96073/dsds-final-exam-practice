@@ -736,7 +736,7 @@
     }
 
     .app {
-      grid-template-columns: 312px minmax(0, 1fr) minmax(240px, 340px);
+      grid-template-columns: 300px minmax(640px, 1fr) minmax(380px, 520px);
     }
 
     aside {
@@ -1013,7 +1013,7 @@
       max-width: none;
     }
 
-    @media (max-width: 1180px) {
+    @media (max-width: 1360px) {
       .app {
         grid-template-columns: 280px minmax(0, 1fr);
       }
@@ -1024,7 +1024,7 @@
         right: 18px;
         bottom: 18px;
         z-index: 20;
-        width: min(360px, calc(100vw - 36px));
+        width: min(520px, calc(100vw - 36px));
         height: auto;
         padding: 0;
       }
@@ -1146,7 +1146,7 @@
         </div>
         <div class="actions">
           <button class="btn primary" id="submitBtn" type="button">送出答案</button>
-          <button class="btn secondary" id="skipBtn" type="button">跳過這題</button>
+          <button class="btn secondary" id="skipBtn" type="button">下一題</button>
         </div>
       </section>
 
@@ -1247,7 +1247,7 @@
         ["Bagging", "平行訓練多個模型，常用 bootstrap samples，降低 variance。"],
         ["Random Forest", "Bagging + random feature selection + 多棵樹投票。"],
         ["Boosting", "序列式訓練，後面的模型修正前面的錯。"],
-        ["Priorities of input features", "這句通常是在問 feature importance，也就是模型能不能告訴你哪些 X 變數對預測最重要。Random Forest、Gradient Boosting、AdaBoost 這類 tree / ensemble 方法常可輸出 importance；KNN 不直接輸出，Logit 主要看係數/顯著性，不是直接輸出 tree ensemble 式的重要性排名。"]
+        ["Priorities of input features", "priorities 是「重要性排序」的意思。這題不是問模型準不準，而是問模型能不能把 input features 依重要程度排出來。Random Forest 可統計 feature 在多棵樹中降低 impurity/error 的貢獻；Gradient Boosting 可統計每個 feature 在逐步降低 loss 時的貢獻；AdaBoost 若以 tree stump/decision tree 作弱分類器，也可由被使用的 split 整理 feature importance。KNN 只依距離找鄰居，不會自然產生 feature ranking；Logit 主要看係數與顯著性，係數受尺度/編碼影響，不等於 tree ensemble 式 priority。"]
       ],
       eval: [
         ["Recall", "TP / (TP + FN)，重點是抓到真正 positive。"],
@@ -1311,7 +1311,7 @@
           ["Bagging", "平行訓練多個模型，常用 bootstrap samples。每個樣本概念上被同等對待，不會因為分錯就提高權重。"],
           ["Random Forest", "Random forest = bagging + random feature selection。每棵樹使用不同資料子集，每次 split 只看部分 features。mtry 是候選 features 數；nodesize 是節點最小 samples；ntree 是樹的數量。"],
           ["Boosting / AdaBoost", "Boosting 是序列式訓練，後面的模型修正前面的錯。AdaBoost 會提高前一輪分錯樣本的權重，因此 difficult samples 會被更重視。"],
-          ["Feature Importance", "Priorities of input features 指 feature importance。Random Forest、Gradient Boosting、AdaBoost 這類 tree/ensemble 方法常可輸出變數重要性；KNN 不直接輸出，Logit 主要看係數與顯著性。"]
+          ["Feature Importance", "Priorities of input features 的 priorities 是「排序/優先順序」，整句是在問：模型能不能告訴你哪些 X 變數最重要、第二重要、第三重要。Random Forest 符合，因為很多棵樹在切分時會反覆使用有用的 features，系統可以累計每個 feature 對降低 impurity 或 prediction error 的貢獻。Gradient Boosting 符合，因為它一輪一輪修正 loss，能統計哪些 features 在降低 loss 時最常被用、貢獻最大。AdaBoost 符合，因為它把弱分類器加權組合，若弱分類器是 decision stump/tree，也能從哪些 features 被用來切分與其加權貢獻整理 importance。KNN 不符合，因為它只是用距離找最近鄰居投票或平均，沒有訓練出一組可排序的 feature importance。Logit 不符合這題的 priority 意義，因為它看的是係數方向、odds ratio、顯著性；係數大小會受單位尺度與編碼影響，不等於 tree/ensemble 模型那種直接的 feature importance ranking。"]
         ],
         examTip: "看到 mtry 不要想到 samples；看到 priorities/input features 要想到 feature importance。"
       },
