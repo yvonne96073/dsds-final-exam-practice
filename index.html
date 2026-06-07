@@ -1122,7 +1122,7 @@
         ["Bagging", "平行訓練多個模型，常用 bootstrap samples，降低 variance。"],
         ["Random Forest", "Bagging + random feature selection + 多棵樹投票。"],
         ["Boosting", "序列式訓練，後面的模型修正前面的錯。"],
-        ["Priorities of input features", "這句通常是在問 feature importance，也就是模型能不能告訴你哪些 X 變數對預測最重要。Random Forest、Gradient Boosting、AdaBoost 這類 tree / ensemble 方法常可輸出 importance；KNN 不直接輸出，Logit 在老師去年答案中不列入。"]
+        ["Priorities of input features", "這句通常是在問 feature importance，也就是模型能不能告訴你哪些 X 變數對預測最重要。Random Forest、Gradient Boosting、AdaBoost 這類 tree / ensemble 方法常可輸出 importance；KNN 不直接輸出，Logit 主要看係數/顯著性，不是直接輸出 tree ensemble 式的重要性排名。"]
       ],
       eval: [
         ["Recall", "TP / (TP + FN)，重點是抓到真正 positive。"],
@@ -1459,31 +1459,31 @@
                               "A",
                               "able to accommodate numerical and categorical features",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Logit regression 可以同時放入數值型特徵與經過編碼的類別型特徵；類別變數通常會轉成 dummy/indicator 後進模型，所以這句正確。"
                       ],
                       [
                               "B",
                               "limited to handling a binary-class problem",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "基本 Logit 常用在 binary classification，但 logit 家族可以延伸到多類別情境，例如 multinomial logit；因此說它只能處理二元類別太絕對。"
                       ],
                       [
                               "C",
                               "able to derive relative probabilities among distinct categories",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Logit 模型輸出的是事件機率或各類別相對機率，之後再依 threshold 或最大機率轉成類別，所以可以比較不同類別的相對可能性。"
                       ],
                       [
                               "D",
                               "able to demonstrate the degree of significance of input features",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Logit regression 會估計係數、標準誤與顯著性檢定，因此能判斷某個 input feature 在模型中是否具有統計顯著性。"
                       ],
                       [
                               "E",
                               "able to demonstrate the priorities (importance) of input features",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "這裡的 priorities 指 feature importance 排名。Logit 可看係數與顯著性，但係數大小會受尺度與編碼影響，通常不被當成 tree ensemble 那種直接的 feature importance 排名。"
                       ]
               ]
       },
@@ -1497,31 +1497,31 @@
                               "A",
                               "Lasso is based on city block distance",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Lasso 使用 L1 penalty，幾何上對應 city block / Manhattan distance，所以會把部分係數壓到 0，具有變數選擇效果。"
                       ],
                       [
                               "B",
                               "Lasso is based on Euclidean distance",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Euclidean distance 對應的是 L2 penalty，不是 Lasso；Lasso 是 L1 / city block。"
                       ],
                       [
                               "C",
                               "Ridge is based on city block distance",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Ridge 使用 L2 penalty，幾何上對應 Euclidean distance；city block / L1 是 Lasso。"
                       ],
                       [
                               "D",
                               "Ridge is based on Euclidean distance",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Ridge 的懲罰項是係數平方和，也就是 L2 penalty，對應 Euclidean distance。"
                       ],
                       [
                               "E",
                               "ElasticNet is a compromise between Ridge and Lasso",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "ElasticNet 同時混合 L1 與 L2 penalty，因此介於 Lasso 的變數選擇與 Ridge 的係數收縮之間。"
                       ]
               ]
       },
@@ -1535,31 +1535,31 @@
                               "A",
                               "Lasso can reduce the most number of input features",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Lasso 的 L1 penalty 會把不重要的係數直接壓成 0，所以通常最能減少 input features。"
                       ],
                       [
                               "B",
                               "Ridge can reduce the most number of input features",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Ridge 會縮小係數，但通常不會把係數壓成 0；它比較像穩定模型，不是最強的 feature selection 方法。"
                       ],
                       [
                               "C",
                               "ElasticNet can reduce the most number of input features",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "ElasticNet 也能做部分變數選擇，但因為混合 L1 與 L2，通常不如純 Lasso 那樣 aggressively 把最多特徵刪掉。"
                       ],
                       [
                               "D",
                               "it fits the scenario with limited samples but numerous features",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "當樣本少、特徵多時，普通回歸容易 overfit；biased/regularized regression 透過 penalty 控制係數，適合這種高維度情境。"
                       ],
                       [
                               "E",
                               "it fits the scenario with numerous samples but limited features",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "樣本多、特徵少時，模型通常比較不需要靠 biased regression 來處理高維度或共線性問題；這不是它最典型的使用場景。"
                       ]
               ]
       },
@@ -1573,31 +1573,31 @@
                               "A",
                               "R2 indicates the degree of fitness",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "R2 表示模型解釋 Y 變異的比例，越高代表 in-sample fit 通常越好，所以它可看模型配適程度。"
                       ],
                       [
                               "B",
                               "the more the features, the higher the R2",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "在 MLR 裡，加入更多 features 後，普通 R2 幾乎不會下降，常會上升或持平，這也是為何不能只看 R2 選模型。"
                       ],
                       [
                               "C",
                               "the fewer the features, the higher the R2",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "普通 R2 不會因為特徵變少而自動變高；移除特徵通常可能讓 R2 下降或持平。"
                       ],
                       [
                               "D",
                               "the more the features, the higher the adjusted R2",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Adjusted R2 會懲罰多餘特徵；如果新特徵沒有足夠解釋力，adjusted R2 反而會下降。"
                       ],
                       [
                               "E",
                               "the fewer the features, the higher the adjusted R2",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "在刪掉無用特徵時，adjusted R2 可能上升，因為它偏好解釋力足夠且較精簡的模型。"
                       ]
               ]
       },
@@ -1611,31 +1611,31 @@
                               "A",
                               "it is linear regression",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "MARS 是分段式、可自動找 knot 的 adaptive regression，不是單純一條直線的 linear regression。"
                       ],
                       [
                               "B",
                               "it is nonlinear regression",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "MARS 透過 hinge functions 和 knots 建立分段關係，可以捕捉非線性，因此屬於 nonlinear regression。"
                       ],
                       [
                               "C",
                               "GCV can justify the importance of input features",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "MARS 常用 GCV 評估模型複雜度與變數貢獻，哪些變數能降低 GCV、改善模型，就可被視為較重要。"
                       ],
                       [
                               "D",
                               "the parameter, “degree”, is used to control the number of knots",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "在這份課程脈絡中，degree 被拿來控制 MARS 模型複雜度；模型越複雜越容易放入更多交互/分段結構。"
                       ],
                       [
                               "E",
                               "both left-hand segment and right-hand segment around the knot can be concurrently selected",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "MARS 在 pruning/selection 時不一定同時保留 knot 左右兩側基底函數；模型會選有助於降低誤差的部分，所以這句太絕對。"
                       ]
               ]
       },
@@ -1649,31 +1649,31 @@
                               "A",
                               "information impurity before splitting is larger",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "決策樹切分的目的就是讓子節點更純，因此切分前的 impurity 通常應該比加權後的切分後 impurity 大。"
                       ],
                       [
                               "B",
                               "information impurity after splitting is larger",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "如果切分後 impurity 變大，代表切分讓資料更混亂，通常不是好的 split；好的 split 會降低 impurity。"
                       ],
                       [
                               "C",
                               "limited to categorical features",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Decision tree 可以處理類別與數值特徵；數值特徵可透過 threshold 切分，所以不只限於 categorical features。"
                       ],
                       [
                               "D",
                               "the variable selected in the upper levels implies higher importance",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "越上層的變數越早切分大量資料，通常代表它對降低 impurity 或區分類別更有貢獻，因此重要性較高。"
                       ],
                       [
                               "E",
                               "the variable selected in the lower levels implies higher importance",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "下層節點只影響較小的資料子集，通常不如上層 split 代表全局重要性，所以不能說下層變數更重要。"
                       ]
               ]
       },
@@ -1687,31 +1687,31 @@
                               "A",
                               "punishing the predictor with big variances",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Gain ratio 主要修正 information gain 偏好多類別/多 levels 變數的問題，不是針對 variance 大小懲罰。"
                       ],
                       [
                               "B",
                               "avoid underfitting",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Gain ratio 的目的不是讓模型更複雜以避免 underfitting，而是避免 information gain 偏向切太細的 predictor。"
                       ],
                       [
                               "C",
                               "punishing the predictor with many levels",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Information gain 容易偏好 levels 很多的變數，因為它能把資料切得很碎；gain ratio 會用 split information 校正這種偏誤。"
                       ],
                       [
                               "D",
                               "punishing the predictor with few levels",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Gain ratio 不是懲罰 levels 少的 predictor；它主要是避免 levels 太多的 predictor 被不公平偏好。"
                       ],
                       [
                               "E",
                               "avoid overfitting",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "懲罰 levels 太多的切分可避免樹把資料切太碎、記住訓練資料，因此有助於降低 overfitting。"
                       ]
               ]
       },
@@ -1720,7 +1720,7 @@
               "topic": "ensemble",
               "source": "Data Science Final Exam Questions_Answers Copy.pdf",
               "prompt": "Which algorithms can show the priorities of input features? (More than one correct answer)",
-              "explanation": "這題的 priorities of input features 不是問哪個模型比較準，而是問哪些演算法可以呈現 feature importance，也就是把輸入變數 X 依照對模型預測的重要程度排序。老師去年反紅答案是 Random Forest、Gradient Boosting、AdaBoost，因為這些 tree / ensemble 方法通常能整理出變數重要性；KNN 主要靠距離找鄰居，不會直接告訴你變數 priority；Logit Regression 雖然能看係數，但依老師這題出題邏輯，不算在 show feature priorities 的演算法。考試看到 priorities / importance / input features，要先想到 feature importance。", 
+              "explanation": "這題的 priorities of input features 不是問哪個模型比較準，而是問哪些演算法可以呈現 feature importance，也就是把輸入變數 X 依照對模型預測的重要程度排序。正確答案是 Random Forest、Gradient Boosting、AdaBoost，因為這些 tree / ensemble 方法通常能整理出變數重要性；KNN 主要靠距離找鄰居，不會直接告訴你變數 priority；Logit Regression 雖然能看係數，但它不是像 tree ensemble 一樣直接輸出 feature importance ranking，因此不算 show feature priorities 的演算法。考試看到 priorities / importance / input features，要先想到 feature importance。", 
               "options": [
                       [
                               "A",
@@ -1738,7 +1738,7 @@
                               "C",
                               "logit regression",
                               false,
-                              "Logit regression 可以看係數方向與影響，但這題老師問的是演算法能否直接 show priorities / feature importance。依去年反紅答案，logit regression 不列入這種 feature-priority 類演算法。"
+                              "Logit regression 可以看係數方向與顯著性，但係數會受尺度、編碼與模型形式影響；這題問的是能不能直接 show feature importance ranking，因此 Logit 不列入 tree ensemble 這類 feature-priority 演算法。"
                       ],
                       [
                               "D",
@@ -1764,31 +1764,31 @@
                               "A",
                               "decreasing the value of “minsplit” can simplify decision tree",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "minsplit 是節點繼續切分前需要的最小樣本數。把 minsplit 降低會讓節點更容易繼續切下去，樹通常更複雜，不是更簡單。"
                       ],
                       [
                               "B",
                               "increasing the value of “minsplit” can simplify decision tree",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "提高 minsplit 代表節點要有更多樣本才允許分裂，因此很多小節點不能再切，決策樹會變得比較簡單。"
                       ],
                       [
                               "C",
                               "decreasing the value of “maxdepth” can simplify decision tree",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "maxdepth 控制樹的最大深度。降低 maxdepth 會限制樹長太深，模型能表達的規則變少，因此更簡單。"
                       ],
                       [
                               "D",
                               "increasing the value of “maxdepth” can simplify decision tree",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "提高 maxdepth 允許樹長得更深、切出更多規則，通常會增加模型複雜度與 overfitting 風險。"
                       ],
                       [
                               "E",
                               "“minbucket” represents the minimal number of features required in leaf nodes",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "minbucket 指 leaf node 中最少需要多少 samples，不是需要多少 features；features 數量與變數選擇參數才比較相關。"
                       ]
               ]
       },
@@ -1802,31 +1802,31 @@
                               "A",
                               "C4.5/C5.0 uses Gini index to measure information impurity",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Gini index 是 CART 常用的 impurity 指標；C4.5/C5.0 主要使用 entropy/information gain/gain ratio。"
                       ],
                       [
                               "B",
                               "CART uses Gini index to measure information impurity",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "CART 常用 Gini impurity 來評估分類切分是否讓節點變純，所以這句正確。"
                       ],
                       [
                               "C",
                               "C4.5/C5.0 uses entropy to measure information impurity",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "C4.5/C5.0 以 entropy 和 information gain/gain ratio 為核心來衡量切分品質。"
                       ],
                       [
                               "D",
                               "CART uses entropy to measure information impurity",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "在本課考點中，CART 對應 Gini index；entropy 是 C4.5/C5.0 的重點。"
                       ],
                       [
                               "E",
                               "Gain ratio is for penalizing a user gives many redundant features",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Gain ratio 懲罰的是單一 predictor 有太多 levels，而不是使用者放入很多 redundant features；這兩件事不同。"
                       ]
               ]
       },
@@ -1840,31 +1840,31 @@
                               "A",
                               "each tree is based on different subsets",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Random forest 會用 bootstrap sampling 建立多棵樹，每棵樹看到的訓練資料子集不同，所以能降低單棵樹的 variance。"
                       ],
                       [
                               "B",
                               "each tree is based on different features",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Random forest 在每次 split 只抽部分 features 參與候選切分，讓樹之間更多樣化，避免所有樹都長得太像。"
                       ],
                       [
                               "C",
                               "“mtry” means the number of samples to grow a tree",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "mtry 控制的是每次 split 可抽取候選的 features 數量，不是抽多少 samples；樣本抽樣是 bootstrap 的概念。"
                       ],
                       [
                               "D",
                               "“mtry” means the number of features to grow a tree",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "mtry 是 random forest 中每次切分時隨機考慮的 feature 數，會影響樹之間的差異與模型穩定度。"
                       ],
                       [
                               "E",
                               "able to demonstrate the priorities (importance) of input features",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Random forest 可以統計各 feature 在多棵樹中帶來多少 impurity/error 改善，因此能輸出 feature importance，也就是題目說的 input feature priority。"
                       ]
               ]
       },
@@ -1878,31 +1878,31 @@
                               "A",
                               "“nodesize” means the number of nodes",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "nodesize 不是節點總數；它控制的是節點中至少要有多少 samples，才停止或限制繼續切分。"
                       ],
                       [
                               "B",
                               "“nodesize” means the number of features",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "features 數量相關的是 mtry，不是 nodesize；nodesize 跟 node 裡的樣本數有關。"
                       ],
                       [
                               "C",
                               "“nodesize” means the number of minimal samples in a node",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "nodesize 表示節點內最小樣本數；值越大，樹越不容易繼續切深，模型通常更簡單。"
                       ],
                       [
                               "D",
                               "it can be used for both classification and regression",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Random forest 可以用多棵 classification trees 做分類，也可以用 regression trees 做數值預測。"
                       ],
                       [
                               "E",
                               "“ntree” can be used to decide the performances are stable or not",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "ntree 是樹的數量；增加樹數後若 performance 趨於穩定，代表 ensemble 結果比較可靠。"
                       ]
               ]
       },
@@ -1916,31 +1916,31 @@
                               "A",
                               "random forest",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Random forest 可由分類樹組成做 classification，也可由回歸樹組成做 regression，所以兩種任務都能做。"
                       ],
                       [
                               "B",
                               "gradient boosting",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Gradient boosting 是框架，可依 loss function 設計分類或回歸版本，因此能同時涵蓋兩類任務。"
                       ],
                       [
                               "C",
                               "CART",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "CART 的全名就是 Classification and Regression Tree，明確包含分類樹與回歸樹。"
                       ],
                       [
                               "D",
                               "KNN",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "KNN 可以用鄰居投票做 classification，也可以用鄰居平均做 regression，因此兩種任務都能做。"
                       ],
                       [
                               "E",
                               "logit regression",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Logit regression 在本課考點主要是分類模型，輸出類別機率；不是一般連續數值 regression，所以不算同時做分類與回歸。"
                       ]
               ]
       },
@@ -1954,31 +1954,31 @@
                               "A",
                               "bagging forces “good” samples (easy to identify) to be learned more frequently",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Bagging 透過 bootstrap 建立多個資料子集，並不會根據樣本好壞調整權重；這是 boosting 才有的精神。"
                       ],
                       [
                               "B",
                               "bagging forces “bad” samples (hard to identify) to be learned more frequently",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Bagging 不會特別提高難分樣本權重；它讓模型平行學不同抽樣資料，重點是降低 variance。"
                       ],
                       [
                               "C",
                               "bagging asks all samples to be learned equally",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Bagging 的 bootstrap 抽樣沒有依錯誤率調整權重，概念上每個樣本被同等對待。"
                       ],
                       [
                               "D",
                               "adaboost forces “good” samples to be learned more frequently",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "AdaBoost 會提高前一輪分錯的 difficult/bad samples 權重，而不是提高容易分對的 good samples 權重。"
                       ],
                       [
                               "E",
                               "adaboost forces “bad” samples to be learned more frequently",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "AdaBoost 的核心是讓後續弱模型更重視前面分錯的樣本，因此 hard-to-identify samples 會被學得更頻繁。"
                       ]
               ]
       },
@@ -1992,31 +1992,31 @@
                               "A",
                               "classification is based on majority voting",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Ensemble classification 常讓多個分類器投票，票數最多的類別成為最後預測。"
                       ],
                       [
                               "B",
                               "regression is based on majority voting",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Regression 預測的是連續數值，不能用類別投票；通常用平均或加權平均整合。"
                       ],
                       [
                               "C",
                               "classification is based on the average",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "分類通常是投票或機率平均後取類別；若說直接以 average 作為分類答案，容易把 regression 的整合方式混進來。"
                       ],
                       [
                               "D",
                               "regression is based on the average",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Ensemble regression 常把多個模型的數值預測取平均，以降低單一模型的波動。"
                       ],
                       [
                               "E",
                               "weak machines can be combined into a strong system",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Ensemble learning 的核心就是把多個弱模型結合，透過投票、平均或加權形成更穩定的強模型。"
                       ]
               ]
       },
@@ -2030,31 +2030,31 @@
                               "A",
                               "the model is too complex",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Overfitting 通常是模型太複雜，連訓練資料中的雜訊也學進去。"
                       ],
                       [
                               "B",
                               "the model is too simple",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "模型太簡單是 underfitting 的典型原因；overfitting 剛好相反，通常是模型太複雜。"
                       ],
                       [
                               "C",
                               "training performance is poor",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Overfitting 通常 training performance 很好，因為模型把訓練資料甚至雜訊都記住；訓練表現差比較像 underfitting。"
                       ],
                       [
                               "D",
                               "testing performance is poor",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Overfitting 的核心症狀是訓練集表現好、測試集表現差，表示模型無法泛化到新資料。"
                       ],
                       [
                               "E",
                               "too many samples",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "樣本太多不是 overfitting 的定義；overfitting 更常發生在模型太複雜、資料不足或雜訊被學進去時。"
                       ]
               ]
       },
@@ -2068,31 +2068,31 @@
                               "A",
                               "the model is too complex",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Overfitting 通常是模型太複雜，連訓練資料中的雜訊也學進去。"
                       ],
                       [
                               "B",
                               "the model is too simple",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Underfitting 是模型太簡單，連基本規律都學不起來。"
                       ],
                       [
                               "C",
                               "training performance is poor",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Underfitting 連訓練資料都學不好，所以 training performance 會差。"
                       ],
                       [
                               "D",
                               "testing performance is poor",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Underfitting 因為沒有學到真正 pattern，訓練與測試表現通常都差。"
                       ],
                       [
                               "E",
                               "too many samples",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "樣本數多不是 underfitting 的定義；underfitting 主要是模型能力不足或特徵/關係沒有被學到。"
                       ]
               ]
       },
@@ -2106,31 +2106,31 @@
                               "A",
                               "its two axis are TP (true positive) and TN (true negative)",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "ROC 圖不是 TP 對 TN；它看的是不同 threshold 下 true positive rate 與 false positive rate 的取捨。"
                       ],
                       [
                               "B",
                               "its two axis are TP and FP (false positive)",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "本課題目用 TP/FP 表示 ROC 的兩個方向；更精確地說是 TPR 對 FPR，也就是抓到正例與誤判正例的權衡。"
                       ],
                       [
                               "C",
                               "the bigger the AUC, the better the classifier",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "AUC 越大表示模型越能把 positive 排在 negative 前面，整體分類區分能力越好。"
                       ],
                       [
                               "D",
                               "the smaller the AUC, the better the classifier",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "AUC 小代表分類器區分能力差；理想模型 AUC 越接近 1 越好。"
                       ],
                       [
                               "E",
                               "the ideal point has an area size of 0.5",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "AUC=0.5 約等於隨機猜測，不是理想點；理想分類器會接近左上角且 AUC 接近 1。"
                       ]
               ]
       },
@@ -2144,31 +2144,31 @@
                               "A",
                               "TP means type 1 error",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "TP 是真正例，代表實際 positive 且預測 positive；Type I error 是 FP。"
                       ],
                       [
                               "B",
                               "FP means type 1 error",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "FP 是把實際 negative 誤判成 positive，對應 Type I error。"
                       ],
                       [
                               "C",
                               "TN means type 2 error",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "TN 是真負例，代表正確判成 negative；Type II error 是 FN。"
                       ],
                       [
                               "D",
                               "FN means type 2 error",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "FN 是把實際 positive 漏判成 negative，對應 Type II error。"
                       ],
                       [
                               "E",
                               "recall and precision can be simultaneously reduced",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "調 threshold 常會讓 recall 與 precision 呈現 trade-off；通常不是把兩者同時降低作為有效調整目標。"
                       ]
               ]
       },
@@ -2182,31 +2182,31 @@
                               "A",
                               "gradient represents the slope",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Gradient 在數學上就是斜率/導數，表示 loss 對模型預測改變的方向與大小。"
                       ],
                       [
                               "B",
                               "gradient represents the moving direction of the features",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "在 gradient boosting 中，gradient 指引模型往降低 loss 的方向更新，因此可理解為修正錯誤的移動方向。"
                       ],
                       [
                               "C",
                               "shrinkage means a learning rate",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Shrinkage 就是 learning rate，用來縮小每一輪新模型對整體預測的更新幅度。"
                       ],
                       [
                               "D",
                               "shrinkage means a step size of moving",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Learning rate 也可理解為每次往梯度方向移動的 step size；越小越保守。"
                       ],
                       [
                               "E",
                               "decreasing interection.depth can result in a simpler model",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "interaction.depth 控制每棵樹可捕捉的互動深度；降低它會限制模型複雜度，使模型更簡單。"
                       ]
               ]
       },
