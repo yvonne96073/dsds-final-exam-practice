@@ -619,6 +619,23 @@
       color: #0b5f59;
     }
 
+    .note-card p {
+      margin: 0;
+    }
+
+    .note-card section {
+      display: grid;
+      gap: 4px;
+      border-top: 1px solid #e8eef3;
+      padding-top: 8px;
+    }
+
+    .note-card h3 {
+      margin: 0;
+      font-size: .92rem;
+      color: #1f2937;
+    }
+
     .note-card ul {
       margin: 0;
       padding-left: 18px;
@@ -1254,6 +1271,91 @@
         ["Train/Test", "用 training set 找權重，再套到 testing set；可和 equally weighted policy 比較。"],
         ["Sharpe ratio", "return divided by risk，越大通常越好。"]
       ]
+    };
+
+    const studyNotes = {
+      chi: {
+        title: "Chi-square / p-value",
+        focus: "你需要先分清楚：Chi-square 是在看兩個類別變數是否有關，不是在比較平均數。",
+        sections: [
+          ["定義", "Chi-square test 比較 observed counts 與 expected counts。如果兩個變數真的 independent，觀察到的格子人數應該接近期望人數。差距越大，越不像獨立。"],
+          ["怎麼判斷", "先看變數型態：兩個都是 categorical 才想到 Chi-square。再看 p-value：p < alpha 時拒絕 H0，表示兩變數可能 dependent / associated。"],
+          ["常見陷阱", "p-value 不是 H0 為真的機率；Chi-square 也不能證明因果，只能說類別變數之間有統計關聯。"]
+        ],
+        examTip: "看到 gender、purchase decision、segment、category 這類字眼，先判斷是不是 categorical vs categorical。"
+      },
+      stat: {
+        title: "t-test / ANOVA / F-test",
+        focus: "你需要先用資料型態與組數選方法，而不是看到 p-value 就亂套。",
+        sections: [
+          ["t-test", "比較兩組平均數，例如兩個市場的 average return 是否不同。重點是 response 通常是數值，group 是兩組。"],
+          ["ANOVA", "比較三組以上平均數。Two-way ANOVA 可同時看兩個 factors，也可以看 interaction。"],
+          ["F-test", "常用來比較變異數或 ANOVA 中的變異來源，不是拿來比較兩個比例。"]
+        ],
+        examTip: "考題常把 Chi-square、t-test、ANOVA、F-test 混在一起；先問自己 Y 是數值還是類別、group 有幾組。"
+      },
+      tree: {
+        title: "Decision Tree / Gain Ratio",
+        focus: "你需要抓住一條主線：決策樹每次切分都是為了讓節點更純，並控制樹不要切太碎。",
+        sections: [
+          ["Impurity", "切分前 impurity 通常較大；好的 split 會讓切分後的 weighted impurity 下降。C5.0/C4.5 重 entropy、information gain、gain ratio；CART 重 Gini。"],
+          ["Gain Ratio", "Information gain 容易偏好 levels 很多的 predictor，因為能把資料切得很碎。Gain ratio 用 split information 校正，避免多 levels 變數被過度偏好。"],
+          ["複雜度控制", "提高 minsplit 或降低 maxdepth 會讓樹更簡單。minbucket 是 leaf node 的最小 samples，不是 features。"]
+        ],
+        examTip: "看到 many levels、gain ratio、overfitting，要想到：它是在懲罰切太碎的 predictor。"
+      },
+      ensemble: {
+        title: "Ensemble / Random Forest / Boosting",
+        focus: "你需要分清楚 bagging 與 boosting：一個偏平行降低 variance，一個偏序列修正錯誤。",
+        sections: [
+          ["Bagging", "平行訓練多個模型，常用 bootstrap samples。每個樣本概念上被同等對待，不會因為分錯就提高權重。"],
+          ["Random Forest", "Random forest = bagging + random feature selection。每棵樹使用不同資料子集，每次 split 只看部分 features。mtry 是候選 features 數；nodesize 是節點最小 samples；ntree 是樹的數量。"],
+          ["Boosting / AdaBoost", "Boosting 是序列式訓練，後面的模型修正前面的錯。AdaBoost 會提高前一輪分錯樣本的權重，因此 difficult samples 會被更重視。"],
+          ["Feature Importance", "Priorities of input features 指 feature importance。Random Forest、Gradient Boosting、AdaBoost 這類 tree/ensemble 方法常可輸出變數重要性；KNN 不直接輸出，Logit 主要看係數與顯著性。"]
+        ],
+        examTip: "看到 mtry 不要想到 samples；看到 priorities/input features 要想到 feature importance。"
+      },
+      eval: {
+        title: "Binary Classification / ROC",
+        focus: "你需要把 confusion matrix、Type I/II error、ROC/AUC 放在同一張圖裡理解。",
+        sections: [
+          ["Confusion Matrix", "TP 是實際 positive 且預測 positive；TN 是實際 negative 且預測 negative；FP 是把 negative 誤判成 positive；FN 是把 positive 漏掉。"],
+          ["Type I / Type II", "Type I error 對應 FP；Type II error 對應 FN。"],
+          ["ROC / AUC", "ROC 看不同 threshold 下 TPR 與 FPR 的取捨。AUC 越大代表模型越能區分 positive 與 negative；AUC=0.5 接近隨機猜。"]
+        ],
+        examTip: "看到 ROC 軸時，更精確要想到 TPR/FPR；題目若寫 TP/FP，多半是在考方向不要混成 TN。"
+      },
+      project: {
+        title: "Overfitting / Underfitting / Feature Importance",
+        focus: "你需要用 training/testing 表現判斷模型是太複雜還是太簡單。",
+        sections: [
+          ["Overfitting", "模型太複雜，training performance 好，但 testing performance 差。代表模型可能把訓練資料雜訊也學進去。"],
+          ["Underfitting", "模型太簡單，training 和 testing 通常都差。代表模型連基本 pattern 都沒有學到。"],
+          ["Feature Importance", "Feature importance 是模型解釋工具，告訴你哪些 input features 對預測重要；但重要性不等於因果。"]
+        ],
+        examTip: "看到 training 好 testing 差，就是 overfitting；看到兩邊都差，就是 underfitting。"
+      },
+      reg: {
+        title: "Logit / Biased Regression / MLR / MARS",
+        focus: "你需要把 regression 這章拆成四塊：Logit 做分類、MLR 看 R2、biased regression 做 regularization、MARS 做非線性。",
+        sections: [
+          ["Logit Regression", "Logit 名字有 regression，但在本課主要用於 classification。它先輸出事件機率，再用 threshold 轉成類別。可看係數、odds ratio 與顯著性，但不要直接把它當 feature importance ranking。"],
+          ["Biased Regression", "Lasso = L1/city block，會把部分係數壓到 0，適合 feature selection。Ridge = L2/Euclidean，會縮小係數但通常不歸零。ElasticNet 混合 L1 與 L2。"],
+          ["MLR", "R2 會隨著 features 增加而上升或持平；adjusted R2 會懲罰多餘 features，所以更適合比較模型是否精簡。"],
+          ["MARS", "MARS 是 nonlinear regression，透過 knots / hinge functions 建立分段關係，可用 GCV 評估模型與變數重要性。"]
+        ],
+        examTip: "看到 Ridge/Lasso/ElasticNet，先想 penalty；看到 R2/adjusted R2，先想是否懲罰多餘 features。"
+      },
+      portfolio: {
+        title: "Portfolio / Solver",
+        focus: "你需要把 portfolio 題目翻成 objective、decision variables、constraints。",
+        sections: [
+          ["三種情境", "Aggressive 偏最大化 return；Conservative 偏最小化 risk；Balanced 通常是在 return 與 risk 中做 trade-off。"],
+          ["Solver", "Decision variables 通常是各資產權重；constraints 常見是權重加總 100%、不能為負或上限限制；objective 依情境設定。"],
+          ["Train/Test", "用 training set 找權重，再用 testing set 評估是否真的比 equally weighted policy 好。"]
+        ],
+        examTip: "看到 Solver 題，先分清楚 objective 是 max return、min risk，還是 max return-risk。"
+      }
     };
 
     const questionBank = [
@@ -3194,12 +3296,10 @@
       }
 
       els.explainList.innerHTML = "";
-      if (question.explanation) {
-        const summary = document.createElement("div");
-        summary.className = "explain summary";
-        summary.innerHTML = `<strong>本題觀念</strong><div>${question.explanation}</div>`;
-        els.explainList.appendChild(summary);
-      }
+      const summary = document.createElement("div");
+      summary.className = "explain summary";
+      summary.innerHTML = `<strong>本題觀念</strong><div>${inferQuestionConcept(question)}</div>`;
+      els.explainList.appendChild(summary);
       question.options.forEach(([letter, text, answer, reason]) => {
         const picked = selected.includes(letter);
         const block = document.createElement("div");
@@ -3292,15 +3392,16 @@
         .slice(0, 82);
     }
 
-    function buildWrongConceptNote(item) {
-      const question = questionBank.find((entry) => entry.id === item.questionId);
-      const missed = item.lastMissed?.length ? `漏選 ${item.lastMissed.join(", ")}` : "";
-      const wrong = item.lastWrongSelected?.length ? `誤選 ${item.lastWrongSelected.join(", ")}` : "";
-      const action = [missed, wrong].filter(Boolean).join("；") || (item.isCorrect ? "答對但信心不足" : "需要重看選項判斷");
-      let keyPoint = question?.explanation || conceptNotes[item.topic]?.[0]?.[1] || "先回到本題選項詳解，確認每個選項為何正確或錯誤。";
-      if (keyPoint.length > 230) keyPoint = `${keyPoint.slice(0, 230)}...`;
-      const reasons = item.reasons?.length ? item.reasons.map((key) => mistakeLabel[key]).join("、") : "概念判斷";
-      return { question, action, keyPoint, reasons };
+    function inferQuestionConcept(question) {
+      if (question.explanation) return question.explanation;
+      const topicNote = studyNotes[question.topic];
+      if (!topicNote) return "這題重點是判斷每個選項的概念是否符合該單元定義，先看正確選項背後的規則，再看錯誤選項混淆了哪個相近概念。";
+      const optionText = question.options.map(([, text]) => text).join(" ").toLowerCase();
+      const matchedSection = topicNote.sections.find(([title]) => optionText.includes(title.toLowerCase().split(" ")[0]));
+      const base = matchedSection
+        ? `${matchedSection[0]}：${matchedSection[1]}`
+        : `${topicNote.focus} ${topicNote.sections[0][0]}：${topicNote.sections[0][1]}`;
+      return `${base} 考試作答時，不要只背選項文字，要先判斷題目是在考定義、模型差異、指標方向，還是參數意義。`;
     }
 
     function renderMistakeNotes() {
@@ -3322,20 +3423,26 @@
       }, {});
 
       els.mistakeNotesContent.innerHTML = Object.values(grouped).map((group) => {
-        const items = group.items.map((item) => {
-          const note = buildWrongConceptNote(item);
-          return `
-            <li>
-              <strong>${shortQuestionTitle(item.prompt)}</strong>
-              <div>${note.action}｜${note.reasons}</div>
-              <div>${note.keyPoint}</div>
-            </li>
-          `;
-        }).join("");
+        const note = studyNotes[group.topic];
+        const reasonSet = [...new Set(group.items.flatMap((item) => item.reasons || []).map((key) => mistakeLabel[key]))];
+        const problemSummary = group.items.map((item) => {
+          const missed = item.lastMissed?.length ? `漏選 ${item.lastMissed.join(", ")}` : "";
+          const wrong = item.lastWrongSelected?.length ? `誤選 ${item.lastWrongSelected.join(", ")}` : "";
+          return [missed, wrong].filter(Boolean).join("、") || (item.isCorrect ? "答對但信心不足" : "選項判斷不穩");
+        }).join("；");
+        const sections = (note?.sections || conceptNotes[group.topic] || []).map(([title, body]) => `
+          <section>
+            <h3>${title}</h3>
+            <p>${body}</p>
+          </section>
+        `).join("");
         return `
           <article class="note-card">
-            <strong>${topics[group.topic]}</strong>
-            <ul>${items}</ul>
+            <strong>${note?.title || topics[group.topic]}</strong>
+            <p>${note?.focus || "這個單元需要回到基本定義與方法差異。"} </p>
+            <p><b>你目前卡住：</b>${problemSummary || "需要再確認選項判斷"}${reasonSet.length ? `｜${reasonSet.join("、")}` : ""}</p>
+            ${sections}
+            <p><b>考前提醒：</b>${note?.examTip || "先判斷題目在考哪個概念，再回頭看每個選項是否符合定義。"}</p>
           </article>
         `;
       }).join("");
@@ -3378,10 +3485,10 @@
         const reasonText = item.reasons?.length ? item.reasons.map((key) => mistakeLabel[key]).join("、") : "待觀察";
         const statusText = item.isCorrect ? "答對但低信心" : "答錯";
         const statusClass = item.isCorrect ? "複習確認" : "錯題";
-        const summaryHtml = question?.explanation ? `
+        const summaryHtml = question ? `
           <div class="wrong-summary">
             <strong>本題觀念</strong>
-            <div>${question.explanation}</div>
+            <div>${inferQuestionConcept(question)}</div>
           </div>
         ` : "";
         const detailHtml = question ? question.options.map(([letter, text, answer, reason]) => {
