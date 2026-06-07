@@ -398,6 +398,12 @@
 
     .explain strong { display: block; margin-bottom: 4px; }
 
+    .explain.summary {
+      border-color: #99f6e4;
+      background: #f0fdfa;
+      color: #134e4a;
+    }
+
     .review-box {
       max-width: 980px;
       padding: 20px;
@@ -537,6 +543,16 @@
     .wrong-choice.trap {
       border-color: #fecaca;
       background: #fff1f2;
+    }
+
+    .wrong-summary {
+      border: 1px solid #99f6e4;
+      border-radius: 8px;
+      padding: 10px;
+      background: #f0fdfa;
+      color: #134e4a;
+      display: grid;
+      gap: 4px;
     }
 
     .diagnosis {
@@ -1105,7 +1121,8 @@
       ensemble: [
         ["Bagging", "平行訓練多個模型，常用 bootstrap samples，降低 variance。"],
         ["Random Forest", "Bagging + random feature selection + 多棵樹投票。"],
-        ["Boosting", "序列式訓練，後面的模型修正前面的錯。"]
+        ["Boosting", "序列式訓練，後面的模型修正前面的錯。"],
+        ["Priorities of input features", "這句通常是在問 feature importance，也就是模型能不能告訴你哪些 X 變數對預測最重要。Random Forest、Gradient Boosting、AdaBoost 這類 tree / ensemble 方法常可輸出 importance；KNN 不直接輸出，Logit 在老師去年答案中不列入。"]
       ],
       eval: [
         ["Recall", "TP / (TP + FN)，重點是抓到真正 positive。"],
@@ -1703,36 +1720,37 @@
               "topic": "ensemble",
               "source": "Data Science Final Exam Questions_Answers Copy.pdf",
               "prompt": "Which algorithms can show the priorities of input features? (More than one correct answer)",
+              "explanation": "這題的 priorities of input features 不是問哪個模型比較準，而是問哪些演算法可以呈現 feature importance，也就是把輸入變數 X 依照對模型預測的重要程度排序。老師去年反紅答案是 Random Forest、Gradient Boosting、AdaBoost，因為這些 tree / ensemble 方法通常能整理出變數重要性；KNN 主要靠距離找鄰居，不會直接告訴你變數 priority；Logit Regression 雖然能看係數，但依老師這題出題邏輯，不算在 show feature priorities 的演算法。考試看到 priorities / importance / input features，要先想到 feature importance。", 
               "options": [
                       [
                               "A",
                               "KNN",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Priorities of input features 指的是 feature importance，也就是模型能不能告訴你哪些輸入變數比較重要。KNN 主要靠距離找鄰居分類，模型本身通常不直接輸出變數重要性排名，所以不是這題答案。"
                       ],
                       [
                               "B",
                               "random forest",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Random forest 由多棵決策樹組成，可以統計變數在切分時帶來多少 impurity / error 改善，因此能產生 feature importance。這就是題目說的 priorities of input features。"
                       ],
                       [
                               "C",
                               "logit regression",
                               false,
-                              "去年期末考沒有反紅；這是老師常拿來混淆的錯誤敘述。"
+                              "Logit regression 可以看係數方向與影響，但這題老師問的是演算法能否直接 show priorities / feature importance。依去年反紅答案，logit regression 不列入這種 feature-priority 類演算法。"
                       ],
                       [
                               "D",
                               "gradient boosting",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "Gradient boosting 也是用一連串弱模型逐步修正錯誤，常見實作會輸出 feature importance，表示哪些 input features 對降低錯誤最有貢獻，所以可以 show priorities。"
                       ],
                       [
                               "E",
                               "adaboost",
                               true,
-                              "去年期末考反紅答案；這個敘述符合老師的出題邏輯。"
+                              "AdaBoost 屬於 boosting ensemble，會根據錯誤調整樣本權重並組合弱分類器；在樹樁等弱分類器情境下，也可以整理出 feature importance，因此能顯示 input features 的 priority。"
                       ]
               ]
       },
@@ -3062,6 +3080,12 @@
       }
 
       els.explainList.innerHTML = "";
+      if (question.explanation) {
+        const summary = document.createElement("div");
+        summary.className = "explain summary";
+        summary.innerHTML = `<strong>本題觀念</strong><div>${question.explanation}</div>`;
+        els.explainList.appendChild(summary);
+      }
       question.options.forEach(([letter, text, answer, reason]) => {
         const picked = selected.includes(letter);
         const block = document.createElement("div");
@@ -3183,6 +3207,12 @@
         const reasonText = item.reasons?.length ? item.reasons.map((key) => mistakeLabel[key]).join("、") : "待觀察";
         const statusText = item.isCorrect ? "答對但低信心" : "答錯";
         const statusClass = item.isCorrect ? "複習確認" : "錯題";
+        const summaryHtml = question?.explanation ? `
+          <div class="wrong-summary">
+            <strong>本題觀念</strong>
+            <div>${question.explanation}</div>
+          </div>
+        ` : "";
         const detailHtml = question ? question.options.map(([letter, text, answer, reason]) => {
           const picked = item.selected.includes(letter);
           const choiceClass = answer && picked ? "correct" : (answer ? "missed" : (picked ? "trap" : ""));
@@ -3204,7 +3234,7 @@
             <button type="button" data-action="toggle-review" data-question-id="${item.questionId}">看詳解</button>
             <button type="button" data-action="retry-question" data-question-id="${item.questionId}">重練這題</button>
           </div>
-          <div class="wrong-detail">${detailHtml}</div>
+          <div class="wrong-detail">${summaryHtml}${detailHtml}</div>
         `;
         els.wrongList.appendChild(div);
       });
