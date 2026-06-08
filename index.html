@@ -3460,15 +3460,17 @@
       return "很確定";
     }
 
+    function reviewFocusFromItems(items) {
+      const reasonSet = [...new Set(items.flatMap((item) => item.reasons || []).map((key) => mistakeLabel[key]).filter(Boolean))];
+      const confidenceSet = [...new Set(items
+        .filter((item) => item.isCorrect && item.confidence !== "sure")
+        .map((item) => `答對但把握度是「${confidenceLabel(item.confidence)}」`))];
+      return [...confidenceSet, ...reasonSet].join("、") || "這個主題需要再複習";
+    }
+
     function renderLatestMistakeCard(item) {
       const note = studyNotes[item.topic];
-      const reasonSet = [...new Set((item.reasons || []).map((key) => mistakeLabel[key]).filter(Boolean))];
-      const missed = item.lastMissed?.length ? `漏選 ${item.lastMissed.join(", ")}` : "";
-      const wrong = item.lastWrongSelected?.length ? `誤選 ${item.lastWrongSelected.join(", ")}` : "";
-      const confidenceIssue = item.isCorrect && item.confidence !== "sure"
-        ? `答對但把握度是「${confidenceLabel(item.confidence)}」`
-        : "";
-      const problemSummary = [missed, wrong, confidenceIssue].filter(Boolean).join("、") || "選項判斷不穩";
+      const reviewFocus = reviewFocusFromItems([item]);
       const topicSections = (note?.sections || conceptNotes[item.topic] || []).map(([title, body]) => `
         <section>
           <h3>${title}</h3>
@@ -3479,7 +3481,7 @@
         <article class="note-card">
           <strong>剛更新：${note?.title || topics[item.topic]}</strong>
           <p>${note?.focus || "先回到基本定義，再比較每個模型或指標的用途差異。"}</p>
-          <p><b>你目前卡住：</b>${problemSummary}${reasonSet.length ? `｜${reasonSet.join("、")}` : ""}</p>
+          <p><b>你目前要補：</b>${reviewFocus}</p>
           ${topicSections}
           <p><b>考前提醒：</b>${note?.examTip || "先判斷題目在考哪個概念，再回頭看每個選項是否符合定義。"}</p>
         </article>
@@ -3511,12 +3513,7 @@
 
       const topicCards = Object.values(grouped).map((group) => {
         const note = studyNotes[group.topic];
-        const reasonSet = [...new Set(group.items.flatMap((item) => item.reasons || []).map((key) => mistakeLabel[key]))];
-        const problemSummary = group.items.map((item) => {
-          const missed = item.lastMissed?.length ? `漏選 ${item.lastMissed.join(", ")}` : "";
-          const wrong = item.lastWrongSelected?.length ? `誤選 ${item.lastWrongSelected.join(", ")}` : "";
-          return [missed, wrong].filter(Boolean).join("、") || (item.isCorrect ? "答對但信心不足" : "選項判斷不穩");
-        }).join("；");
+        const reviewFocus = reviewFocusFromItems(group.items);
         const sections = (note?.sections || conceptNotes[group.topic] || []).map(([title, body]) => `
           <section>
             <h3>${title}</h3>
@@ -3527,7 +3524,7 @@
           <article class="note-card">
             <strong>${note?.title || topics[group.topic]}</strong>
             <p>${note?.focus || "這個單元需要回到基本定義與方法差異。"} </p>
-            <p><b>你目前卡住：</b>${problemSummary || "需要再確認選項判斷"}${reasonSet.length ? `｜${reasonSet.join("、")}` : ""}</p>
+            <p><b>你目前要補：</b>${reviewFocus}</p>
             ${sections}
             <p><b>考前提醒：</b>${note?.examTip || "先判斷題目在考哪個概念，再回頭看每個選項是否符合定義。"}</p>
           </article>
