@@ -2826,7 +2826,8 @@
       lastWrongTopic: null,
       locked: false,
       notesOpen: false,
-      notesDirty: false
+      notesDirty: false,
+      lastReviewQuestionId: null
     };
 
     const els = {
@@ -2979,7 +2980,8 @@
         wrongBook: state.wrongBook.slice(-80),
         lastWrongTopic: state.lastWrongTopic,
         notesOpen: state.notesOpen,
-        notesDirty: state.notesDirty
+        notesDirty: state.notesDirty,
+        lastReviewQuestionId: state.lastReviewQuestionId
       };
     }
 
@@ -2996,6 +2998,7 @@
       state.lastWrongTopic = snapshot.lastWrongTopic || null;
       state.notesOpen = Boolean(snapshot.notesOpen);
       state.notesDirty = Boolean(snapshot.notesDirty);
+      state.lastReviewQuestionId = snapshot.lastReviewQuestionId || null;
       Object.keys(topics).forEach((key) => {
         state.weak[key] = Number(snapshot.weak?.[key]) || 0;
         state.topicAttempts[key] = Number(snapshot.topicAttempts?.[key]) || 0;
@@ -3269,16 +3272,18 @@
       const existing = state.wrongBook.find((item) => item.questionId === question.id);
       if (needsReview) {
         state.notesDirty = true;
+        state.lastReviewQuestionId = question.id;
         const reviewEntry = {
           ...entry,
           attempts: (existing?.attempts || 0) + 1,
           lastMissed: correct.filter((letter) => !selected.includes(letter)),
           lastWrongSelected: selected.filter((letter) => !correct.includes(letter))
         };
-        if (existing) Object.assign(existing, reviewEntry);
-        else state.wrongBook.unshift(reviewEntry);
+        state.wrongBook = state.wrongBook.filter((item) => item.questionId !== question.id);
+        state.wrongBook.unshift(reviewEntry);
       } else if (existing) {
         state.wrongBook = state.wrongBook.filter((item) => item.questionId !== question.id);
+        if (state.lastReviewQuestionId === question.id) state.lastReviewQuestionId = null;
       }
       state.wrongBook = state.wrongBook.slice(0, 80);
     }
@@ -3483,9 +3488,11 @@
             <p>${body}</p>
           </section>
         `).join("");
+        const latestInGroup = group.items.some((item) => item.questionId === state.lastReviewQuestionId);
         return `
           <article class="note-card">
             <strong>${note?.title || topics[group.topic]}</strong>
+            ${latestInGroup ? `<p><b>剛更新：</b>你剛才答對但信心選「我是猜的／有點懂」，或答錯，因此這個主題被放到最上面複習。</p>` : ""}
             <p>${note?.focus || "這個單元需要回到基本定義與方法差異。"} </p>
             <p><b>你目前卡住：</b>${problemSummary || "需要再確認選項判斷"}${reasonSet.length ? `｜${reasonSet.join("、")}` : ""}</p>
             ${sections}
@@ -3493,6 +3500,7 @@
           </article>
         `;
       }).join("");
+      if (state.notesDirty) els.mistakeNotesContent.scrollTop = 0;
     }
 
     function renderDashboard() {
@@ -3593,6 +3601,7 @@
       resetCollections();
       state.notesOpen = false;
       state.notesDirty = false;
+      state.lastReviewQuestionId = null;
       localStorage.removeItem(STORAGE_KEY);
       updateStats();
       saveProgress();
