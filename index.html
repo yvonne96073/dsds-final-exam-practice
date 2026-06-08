@@ -1702,6 +1702,7 @@
               "topic": "reg",
               "source": "Data Science Final Exam Questions_Answers Copy.pdf",
               "prompt": "Regarding biased regression, which items are correct? (More than one correct answer)",
+              "explanation": "這題在考 biased regression 的 penalty 與距離對應，不是在考 Logit。Lasso 使用 L1 penalty，幾何上對應 city block / Manhattan distance，所以能把部分係數壓到 0，常用於變數選擇。Ridge 使用 L2 penalty，幾何上對應 Euclidean distance，重點是縮小係數、穩定模型，通常不會直接把係數壓成 0。ElasticNet 同時混合 L1 與 L2，所以是 Ridge 與 Lasso 的折衷。作答時看到 Lasso/Ridge/ElasticNet，要先想到 penalty：Lasso=L1/city block；Ridge=L2/Euclidean；ElasticNet=L1+L2。",
               "options": [
                       [
                               "A",
@@ -3414,6 +3415,9 @@
       }
       if (/accuracy|imbalanced|minority|positive class is rare|all samples as negative/.test(`${promptText} ${optionText}`)) {
         return "這題在考 class imbalance 下 accuracy 的陷阱。Accuracy 是整體答對比例；如果 positive class 很少，模型即使全部預測成 negative，也可能因為大多數樣本本來就是 negative 而得到高 accuracy。這個敘述正確，但它同時代表模型沒有實際抓到 positive：positive recall 會是 0。因此遇到 imbalanced classification，不能只看 accuracy，還要看 recall、precision、confusion matrix、ROC/AUC。";
+      }
+      if (/biased regression|lasso|ridge|elasticnet|city block|euclidean|l1|l2|penalty/.test(`${promptText} ${optionText}`)) {
+        return "這題在考 biased regression / regularization 的核心對應。Biased regression 不是亂偏誤，而是刻意加入 penalty，犧牲一點 bias 換取更穩定、較不容易 overfit 的模型。Lasso 是 L1 penalty，對應 city block / Manhattan distance，常能把係數壓成 0；Ridge 是 L2 penalty，對應 Euclidean distance，重點是縮小係數、穩定模型；ElasticNet 是 L1 + L2 的折衷。";
       }
       const matchedSection = topicNote.sections.find(([title]) => optionText.includes(title.toLowerCase().split(" ")[0]));
       const base = matchedSection
