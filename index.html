@@ -3454,6 +3454,62 @@
       return `${base} 考試作答時，不要只背選項文字，要先判斷題目是在考定義、模型差異、指標方向，還是參數意義。`;
     }
 
+    function confidenceLabel(confidence) {
+      if (confidence === "guess") return "我是猜的";
+      if (confidence === "partial") return "有點懂";
+      return "很確定";
+    }
+
+    function renderLatestMistakeCard(item) {
+      const question = questionBank.find((q) => q.id === item.questionId);
+      if (!question) return "";
+      const note = studyNotes[item.topic];
+      const selected = item.selected || [];
+      const correct = item.correct || [];
+      const reasonText = (item.reasons || []).map((key) => mistakeLabel[key]).filter(Boolean).join("、");
+      const needReviewText = item.isCorrect
+        ? `你這題答案全對，但把握度選「${confidenceLabel(item.confidence)}」，代表現在還不能當成真正掌握；考前要把「為什麼每個選項對/錯」補起來。`
+        : "你這題答錯，所以要先修正選項判斷，再用同概念換題練。";
+      const optionRows = question.options.map(([letter, text, answer, reason]) => {
+        const picked = selected.includes(letter);
+        const stateText = answer
+          ? (picked ? "正確選到" : "漏選，應該選")
+          : (picked ? "誤選，不應該選" : "正確沒選");
+        return `
+          <section>
+            <h3>${letter}. ${stateText}</h3>
+            <p>${text}</p>
+            <p>${reason}</p>
+          </section>
+        `;
+      }).join("");
+      const topicSections = (note?.sections || conceptNotes[item.topic] || []).map(([title, body]) => `
+        <section>
+          <h3>${title}</h3>
+          <p>${body}</p>
+        </section>
+      `).join("");
+      return `
+        <article class="note-card">
+          <strong>剛更新：${topics[item.topic]}</strong>
+          <p><b>這題：</b>${question.prompt}</p>
+          <p><b>你選：</b>${selected.join(", ") || "未選"}｜<b>正確：</b>${correct.join(", ")}｜<b>把握度：</b>${confidenceLabel(item.confidence)}</p>
+          <p><b>為什麼進錯題筆記：</b>${needReviewText}${reasonText ? ` ${reasonText}` : ""}</p>
+          <section>
+            <h3>本題觀念</h3>
+            <p>${inferQuestionConcept(question)}</p>
+          </section>
+          ${optionRows}
+          <section>
+            <h3>這個主題要補哪裡</h3>
+            <p>${note?.focus || "先回到基本定義，再比較每個模型或指標的用途差異。"}</p>
+          </section>
+          ${topicSections}
+          <p><b>考前提醒：</b>${note?.examTip || "先判斷題目在考哪個概念，再回頭看每個選項是否符合定義。"}</p>
+        </article>
+      `;
+    }
+
     function renderMistakeNotes() {
       els.notesRail.classList.toggle("open", state.notesOpen);
       els.notesToggle.textContent = state.notesOpen
@@ -3466,7 +3522,10 @@
         return;
       }
 
-      const recent = state.wrongBook.slice(0, 6);
+      const latest = state.wrongBook.find((item) => item.questionId === state.lastReviewQuestionId) || state.wrongBook[0];
+      const recent = state.wrongBook
+        .filter((item) => item.questionId !== latest?.questionId)
+        .slice(0, 6);
       const grouped = recent.reduce((acc, item) => {
         const bucket = acc[item.topic] || { topic: item.topic, items: [] };
         bucket.items.push(item);
@@ -3474,7 +3533,7 @@
         return acc;
       }, {});
 
-      els.mistakeNotesContent.innerHTML = Object.values(grouped).map((group) => {
+      const topicCards = Object.values(grouped).map((group) => {
         const note = studyNotes[group.topic];
         const reasonSet = [...new Set(group.items.flatMap((item) => item.reasons || []).map((key) => mistakeLabel[key]))];
         const problemSummary = group.items.map((item) => {
@@ -3488,11 +3547,9 @@
             <p>${body}</p>
           </section>
         `).join("");
-        const latestInGroup = group.items.some((item) => item.questionId === state.lastReviewQuestionId);
         return `
           <article class="note-card">
             <strong>${note?.title || topics[group.topic]}</strong>
-            ${latestInGroup ? `<p><b>剛更新：</b>你剛才答對但信心選「我是猜的／有點懂」，或答錯，因此這個主題被放到最上面複習。</p>` : ""}
             <p>${note?.focus || "這個單元需要回到基本定義與方法差異。"} </p>
             <p><b>你目前卡住：</b>${problemSummary || "需要再確認選項判斷"}${reasonSet.length ? `｜${reasonSet.join("、")}` : ""}</p>
             ${sections}
@@ -3500,6 +3557,7 @@
           </article>
         `;
       }).join("");
+      els.mistakeNotesContent.innerHTML = `${renderLatestMistakeCard(latest)}${topicCards}`;
       if (state.notesDirty) els.mistakeNotesContent.scrollTop = 0;
     }
 
