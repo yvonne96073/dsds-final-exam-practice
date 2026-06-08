@@ -3085,8 +3085,26 @@
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
+    function masteredQuestionIds() {
+      const latest = new Map();
+      state.answerLog.forEach((entry) => {
+        latest.set(entry.questionId, entry);
+      });
+      return new Set(
+        [...latest.values()]
+          .filter((entry) => entry.isCorrect && entry.confidence === "sure")
+          .map((entry) => entry.questionId)
+      );
+    }
+
     function startExam() {
-      state.examQueue = shuffle(questionBank).slice(0, Math.min(state.examTotal, questionBank.length));
+      const mastered = masteredQuestionIds();
+      const unseenOrUnstable = questionBank.filter((q) => !mastered.has(q.id));
+      const masteredFallback = questionBank.filter((q) => mastered.has(q.id));
+      const examPool = unseenOrUnstable.length >= state.examTotal
+        ? unseenOrUnstable
+        : [...unseenOrUnstable, ...shuffle(masteredFallback)];
+      state.examQueue = shuffle(examPool).slice(0, Math.min(state.examTotal, examPool.length));
       state.examIndex = 0;
     }
 
