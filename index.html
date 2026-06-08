@@ -2711,7 +2711,7 @@
                               "E",
                               "If training optimization loses to equal weighting in testing, the strategy may not generalize well.",
                               true,
-                              "這正是老師比較 equally weighted policy 的重點。"
+                              "如果 training 找出的最佳權重到 testing 期間反而輸給簡單的 equal weighting，代表策略可能只是貼合 training period，沒有穩定泛化到新資料。"
                       ]
               ]
       },
@@ -3408,6 +3408,10 @@
       const topicNote = studyNotes[question.topic];
       if (!topicNote) return "這題重點是判斷每個選項的概念是否符合該單元定義，先看正確選項背後的規則，再看錯誤選項混淆了哪個相近概念。";
       const optionText = question.options.map(([, text]) => text).join(" ").toLowerCase();
+      const promptText = question.prompt.toLowerCase();
+      if (/training|testing|train\/test|generalize|equally weighted/.test(`${promptText} ${optionText}`)) {
+        return "這題在考 training set / testing set 的角色分工與泛化能力。正確流程是先用 training set 找出 portfolio weights 或策略，再把同一組權重套到 testing set 檢查新期間表現。testing set 不能拿來直接挑最佳權重，否則等於偷看答案、會高估策略效果。若 training 最佳化策略在 testing 輸給 equally weighted policy，代表它可能只是在 training period 表現好，泛化到新資料不一定好。";
+      }
       const matchedSection = topicNote.sections.find(([title]) => optionText.includes(title.toLowerCase().split(" ")[0]));
       const base = matchedSection
         ? `${matchedSection[0]}：${matchedSection[1]}`
