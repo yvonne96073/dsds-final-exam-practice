@@ -1573,11 +1573,11 @@
         source: "DS6_basic_classifier.pdf / Unit7_tree_ROC.R",
         prompt: "Regarding accuracy, which descriptions are correct?",
         options: [
-          ["A", "Accuracy can be misleading in imbalanced data.", true, "少數類很少時，全部猜多數類也可能高 accuracy。"],
-          ["B", "A model can have high accuracy but poor recall for the minority class.", true, "這是 class imbalance 的典型陷阱。"],
+          ["A", "Accuracy can be misleading in imbalanced data.", true, "少數類很少時，模型只要一直猜多數類就可能得到高 accuracy；所以 accuracy 高不代表模型真的會抓少數類。"],
+          ["B", "A model can have high accuracy but poor recall for the minority class.", true, "如果 positive 是少數，模型可能幾乎都猜 negative，因此整體 accuracy 高，但 minority/positive 的 recall 很低。"],
           ["C", "Accuracy alone is always sufficient for classification evaluation.", false, "不能只看 accuracy。"],
           ["D", "Recall and precision provide additional information beyond accuracy.", true, "它們能補足 accuracy 的盲點。"],
-          ["E", "If positive class is rare, predicting all samples as negative may still produce high accuracy.", true, "但這種模型對抓 positive 沒用。"]
+          ["E", "If positive class is rare, predicting all samples as negative may still produce high accuracy.", true, "這個選項是在描述 accuracy 的陷阱，不是在說這是好模型。假設 positive 只有 2%，全部猜 negative 也可能有 98% accuracy，但 positive recall = 0，完全抓不到真正重要的 positive。"]
         ]
       },
       {
@@ -3411,6 +3411,9 @@
       const promptText = question.prompt.toLowerCase();
       if (/training|testing|train\/test|generalize|equally weighted/.test(`${promptText} ${optionText}`)) {
         return "這題在考 training set / testing set 的角色分工與泛化能力。正確流程是先用 training set 找出 portfolio weights 或策略，再把同一組權重套到 testing set 檢查新期間表現。testing set 不能拿來直接挑最佳權重，否則等於偷看答案、會高估策略效果。若 training 最佳化策略在 testing 輸給 equally weighted policy，代表它可能只是在 training period 表現好，泛化到新資料不一定好。";
+      }
+      if (/accuracy|imbalanced|minority|positive class is rare|all samples as negative/.test(`${promptText} ${optionText}`)) {
+        return "這題在考 class imbalance 下 accuracy 的陷阱。Accuracy 是整體答對比例；如果 positive class 很少，模型即使全部預測成 negative，也可能因為大多數樣本本來就是 negative 而得到高 accuracy。這個敘述正確，但它同時代表模型沒有實際抓到 positive：positive recall 會是 0。因此遇到 imbalanced classification，不能只看 accuracy，還要看 recall、precision、confusion matrix、ROC/AUC。";
       }
       const matchedSection = topicNote.sections.find(([title]) => optionText.includes(title.toLowerCase().split(" ")[0]));
       const base = matchedSection
