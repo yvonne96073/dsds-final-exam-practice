@@ -645,42 +645,6 @@
       margin: 4px 0;
     }
 
-    .notes-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 10px 0 12px;
-    }
-
-    .notes-data-panel {
-      display: none;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #f8fafc;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-
-    .notes-data-panel.show {
-      display: grid;
-      gap: 10px;
-    }
-
-    .notes-data-panel pre {
-      margin: 0;
-      white-space: pre-wrap;
-      word-break: break-word;
-      max-height: 320px;
-      overflow: auto;
-      font-size: .82rem;
-      line-height: 1.55;
-      color: #334155;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px;
-    }
-
     .diagnosis {
       display: grid;
       gap: 8px;
@@ -1225,15 +1189,6 @@
       <div class="mistake-notes" id="mistakeNotes">
         <h2>錯題筆記</h2>
         <p class="note-muted">整理你目前答錯或低信心答對的觀念。作答時先收起，需要複習再打開。</p>
-        <div class="notes-actions">
-          <button class="btn secondary" id="inspectNotesBtn" type="button">檢視錯題資料</button>
-          <button class="btn secondary" id="exportNotesBtn" type="button">匯出考前筆記</button>
-        </div>
-        <div class="notes-data-panel" id="notesDataPanel" aria-live="polite">
-          <strong>目前錯題資料</strong>
-          <div class="sync-status" id="notesAuditSummary">尚未檢視。</div>
-          <pre id="notesDataPreview"></pre>
-        </div>
         <div id="mistakeNotesContent"></div>
       </div>
     </section>
@@ -2913,11 +2868,6 @@
       wrongList: document.getElementById("wrongList"),
       notesRail: document.getElementById("notesRail"),
       notesToggle: document.getElementById("notesToggle"),
-      inspectNotesBtn: document.getElementById("inspectNotesBtn"),
-      exportNotesBtn: document.getElementById("exportNotesBtn"),
-      notesDataPanel: document.getElementById("notesDataPanel"),
-      notesAuditSummary: document.getElementById("notesAuditSummary"),
-      notesDataPreview: document.getElementById("notesDataPreview"),
       mistakeNotesContent: document.getElementById("mistakeNotesContent")
     };
 
@@ -3518,97 +3468,6 @@
       return [...confidenceSet, ...reasonSet].join("、") || "這個主題需要再複習";
     }
 
-    function buildMistakeStudyData() {
-      const grouped = state.wrongBook.reduce((acc, item) => {
-        const bucket = acc[item.topic] || { topic: item.topic, items: [] };
-        bucket.items.push(item);
-        acc[item.topic] = bucket;
-        return acc;
-      }, {});
-      return topicOrder
-        .filter((topic) => grouped[topic])
-        .map((topic) => {
-          const note = studyNotes[topic];
-          const items = grouped[topic].items;
-          return {
-            topic,
-            title: note?.title || topics[topic],
-            focus: note?.focus || "先回到基本定義，再比較模型、方法或指標的用途差異。",
-            reviewFocus: reviewFocusFromItems(items),
-            sections: note?.sections || conceptNotes[topic] || [],
-            examTip: note?.examTip || "先判斷題目在考哪個概念，再回頭看每個選項是否符合定義。",
-            sourceItems: items.map((item) => ({
-              questionId: item.questionId,
-              prompt: item.prompt,
-              confidence: confidenceLabel(item.confidence),
-              reasonTags: (item.reasons || []).map((key) => mistakeLabel[key]).filter(Boolean),
-              addedBecause: item.isCorrect ? "低信心答對" : "答錯"
-            }))
-          };
-        });
-    }
-
-    function mistakeStudyMarkdown() {
-      const data = buildMistakeStudyData();
-      if (!data.length) return "# 錯題考前筆記\n\n目前沒有錯題或低信心答對題目。";
-      return [
-        "# 錯題考前筆記",
-        "",
-        `更新時間：${new Date().toLocaleString("zh-TW")}`,
-        `涵蓋主題：${data.length} 個`,
-        "",
-        ...data.flatMap((group) => [
-          `## ${group.title}`,
-          "",
-          group.focus,
-          "",
-          `你目前要補：${group.reviewFocus}`,
-          "",
-          ...group.sections.flatMap(([title, body]) => [
-            `### ${title}`,
-            body,
-            ""
-          ]),
-          `考前提醒：${group.examTip}`,
-          "",
-          `來源題數：${group.sourceItems.length}`,
-          ""
-        ])
-      ].join("\n");
-    }
-
-    function renderNotesDataPanel() {
-      const data = buildMistakeStudyData();
-      els.notesDataPanel.classList.add("show");
-      els.notesAuditSummary.textContent = data.length
-        ? `目前收錄 ${state.wrongBook.length} 題，整理成 ${data.length} 個考前筆記主題。`
-        : "目前沒有錯題或低信心答對題目。";
-      els.notesDataPreview.textContent = JSON.stringify({
-        summary: {
-          wrongBookCount: state.wrongBook.length,
-          topicCount: data.length,
-          topics: data.map((group) => group.title)
-        },
-        studyNotes: data
-      }, null, 2);
-    }
-
-    function exportMistakeStudyNotes() {
-      const markdown = mistakeStudyMarkdown();
-      const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "dsds_wrong_notes_study_guide.md";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      els.notesDataPanel.classList.add("show");
-      els.notesAuditSummary.textContent = "已匯出考前筆記 Markdown；下方同步顯示目前錯題資料。";
-      renderNotesDataPanel();
-    }
-
     function renderLatestMistakeCard(item) {
       const note = studyNotes[item.topic];
       const reviewFocus = reviewFocusFromItems([item]);
@@ -3673,7 +3532,6 @@
       }).join("");
       els.mistakeNotesContent.innerHTML = `${renderLatestMistakeCard(latest)}${topicCards}`;
       if (state.notesDirty) els.mistakeNotesContent.scrollTop = 0;
-      if (els.notesDataPanel.classList.contains("show")) renderNotesDataPanel();
     }
 
     function renderDashboard() {
@@ -3820,8 +3678,6 @@
 
     window.getPracticeSnapshot = getPersistableState;
     window.getStoredPracticeSnapshot = () => safeParseJson(localStorage.getItem(STORAGE_KEY));
-    window.getMistakeStudyData = buildMistakeStudyData;
-    window.getMistakeStudyMarkdown = mistakeStudyMarkdown;
     window.applyCloudSnapshot = (snapshot) => {
       applySnapshot(snapshot);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
@@ -3851,13 +3707,6 @@
     els.reviewBtn.addEventListener("click", renderReview);
     els.wrongList.addEventListener("click", handleWrongListClick);
     els.notesToggle.addEventListener("click", toggleMistakeNotes);
-    els.inspectNotesBtn.addEventListener("click", () => {
-      els.notesOpen = true;
-      renderMistakeNotes();
-      renderNotesDataPanel();
-      saveProgress();
-    });
-    els.exportNotesBtn.addEventListener("click", exportMistakeStudyNotes);
     els.adaptiveMode.addEventListener("click", () => setMode("adaptive"));
     els.weakMode.addEventListener("click", () => setMode("weak"));
     els.randomMode.addEventListener("click", () => setMode("random"));
