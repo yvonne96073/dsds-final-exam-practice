@@ -2825,7 +2825,8 @@
       wrongBook: [],
       lastWrongTopic: null,
       locked: false,
-      notesOpen: false
+      notesOpen: false,
+      notesDirty: false
     };
 
     const els = {
@@ -2977,7 +2978,8 @@
         answerLog: state.answerLog.slice(-200),
         wrongBook: state.wrongBook.slice(-80),
         lastWrongTopic: state.lastWrongTopic,
-        notesOpen: state.notesOpen
+        notesOpen: state.notesOpen,
+        notesDirty: state.notesDirty
       };
     }
 
@@ -2993,6 +2995,7 @@
       state.studyCursor = Number(snapshot.studyCursor) || 0;
       state.lastWrongTopic = snapshot.lastWrongTopic || null;
       state.notesOpen = Boolean(snapshot.notesOpen);
+      state.notesDirty = Boolean(snapshot.notesDirty);
       Object.keys(topics).forEach((key) => {
         state.weak[key] = Number(snapshot.weak?.[key]) || 0;
         state.topicAttempts[key] = Number(snapshot.topicAttempts?.[key]) || 0;
@@ -3242,6 +3245,7 @@
 
       markOptions(selected);
       renderFeedback(question, selected, correct, isCorrect, confidence, mistakeReasons);
+      renderMistakeNotes();
       updateStats();
       saveProgress();
     }
@@ -3264,6 +3268,7 @@
       const needsReview = !isCorrect || confidence !== "sure";
       const existing = state.wrongBook.find((item) => item.questionId === question.id);
       if (needsReview) {
+        state.notesDirty = true;
         const reviewEntry = {
           ...entry,
           attempts: (existing?.attempts || 0) + 1,
@@ -3446,7 +3451,9 @@
 
     function renderMistakeNotes() {
       els.notesRail.classList.toggle("open", state.notesOpen);
-      els.notesToggle.textContent = state.notesOpen ? "收起錯題筆記" : "打開錯題筆記";
+      els.notesToggle.textContent = state.notesOpen
+        ? "收起錯題筆記"
+        : (state.notesDirty ? "打開錯題筆記（已更新）" : "打開錯題筆記");
       els.notesToggle.setAttribute("aria-expanded", String(state.notesOpen));
 
       if (!state.wrongBook.length) {
@@ -3585,6 +3592,7 @@
     function reset() {
       resetCollections();
       state.notesOpen = false;
+      state.notesDirty = false;
       localStorage.removeItem(STORAGE_KEY);
       updateStats();
       saveProgress();
@@ -3593,6 +3601,7 @@
 
     function toggleMistakeNotes() {
       state.notesOpen = !state.notesOpen;
+      if (state.notesOpen) state.notesDirty = false;
       renderMistakeNotes();
       saveProgress();
     }
