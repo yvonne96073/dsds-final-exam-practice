@@ -3475,8 +3475,34 @@
       return [...confidenceSet, ...reasonSet].join("、") || "這個主題需要再複習";
     }
 
+    function studyNoteForMistake(item) {
+      const prompt = (item.prompt || "").toLowerCase();
+      if (/regression as well as classification|simultaneously perform regression|classification and regression/.test(prompt)) {
+        return {
+          key: "task-classification-regression",
+          title: "Classification / Regression 任務型態",
+          focus: "你需要判斷演算法能不能同時處理兩種預測任務：classification 預測類別，regression 預測連續數值。",
+          sections: [
+            ["同時能做兩種任務", "Random Forest 可以由 classification trees 做分類，也可以由 regression trees 做數值預測。Gradient Boosting 是框架，可依 loss function 做分類或回歸。CART 全名是 Classification and Regression Tree。KNN 可用鄰居投票做分類，也可用鄰居平均做回歸。"],
+            ["Logit Regression 為什麼不選", "Logit regression 雖然名字有 regression，但在本課考點是 binary classification：先輸出事件機率，再用 threshold 轉成類別。它不是拿來預測一般連續數值 Y 的 regression。"],
+            ["作答判斷順序", "看到題目問 simultaneously perform regression and classification，先問模型是否有分類版與回歸版；不要只看到 regression 這個字就把 Logit regression 選進去。"]
+          ],
+          examTip: "這題的陷阱是名字：Logit regression 有 regression 字樣，但考試要按任務用途判斷，它在這裡是分類模型。"
+        };
+      }
+      return {
+        key: item.topic,
+        ...(studyNotes[item.topic] || {
+          title: topics[item.topic],
+          focus: "這個單元需要回到基本定義與方法差異。",
+          sections: conceptNotes[item.topic] || [],
+          examTip: "先判斷題目在考哪個概念，再回頭看每個選項是否符合定義。"
+        })
+      };
+    }
+
     function renderLatestMistakeCard(item) {
-      const note = studyNotes[item.topic];
+      const note = studyNoteForMistake(item);
       const reviewFocus = reviewFocusFromItems([item]);
       const topicSections = (note?.sections || conceptNotes[item.topic] || []).map(([title, body]) => `
         <section>
@@ -3512,14 +3538,15 @@
         .filter((item) => item.questionId !== latest?.questionId)
         .slice(0, 6);
       const grouped = recent.reduce((acc, item) => {
-        const bucket = acc[item.topic] || { topic: item.topic, items: [] };
+        const note = studyNoteForMistake(item);
+        const bucket = acc[note.key] || { key: note.key, topic: item.topic, note, items: [] };
         bucket.items.push(item);
-        acc[item.topic] = bucket;
+        acc[note.key] = bucket;
         return acc;
       }, {});
 
       const topicCards = Object.values(grouped).map((group) => {
-        const note = studyNotes[group.topic];
+        const note = group.note || studyNoteForMistake(group.items[0]);
         const reviewFocus = reviewFocusFromItems(group.items);
         const sections = (note?.sections || conceptNotes[group.topic] || []).map(([title, body]) => `
           <section>
