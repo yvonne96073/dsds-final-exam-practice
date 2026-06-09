@@ -1222,6 +1222,7 @@
       formula: "公式/低信心",
       direction: "方向判斷",
       method: "方法選擇",
+      task: "任務型態",
       model: "模型差異",
       metric: "指標混淆",
       causality: "因果陷阱"
@@ -2122,6 +2123,7 @@
               "topic": "ensemble",
               "source": "Data Science Final Exam Questions_Answers Copy.pdf",
               "prompt": "Which algorithms can simultaneously perform regression as well as classification? (More than one correct answer)",
+              "explanation": "這題在考演算法的任務型態：哪些方法同時有 classification 版本與 regression 版本。Random Forest 可以做分類森林，也可以用 regression trees 做數值預測；Gradient Boosting 是 boosting 框架，可用不同 loss function 做分類或回歸；CART 全名就是 Classification and Regression Tree，明確包含兩種任務；KNN 可用鄰居投票做 classification，也可用鄰居平均做 regression。Logit regression 雖然名字有 regression，但在本課是 binary classification 模型，輸出事件機率再用 threshold 轉成類別，不是一般連續數值 regression，所以不選。",
               "options": [
                       [
                               "A",
@@ -2812,6 +2814,7 @@
         formula: 0,
         direction: 0,
         method: 0,
+        task: 0,
         model: 0,
         metric: 0,
         causality: 0
@@ -3184,7 +3187,11 @@
       if (/t-test|anova|chi-square|proportion|f-test|categorical|mean|variance/.test(text) || question.topic === "stat") {
         reasons.push(["method", "方法選擇混淆：Chi-square 看類別對類別；t-test 看兩組平均；ANOVA 看三組以上平均。"]);
       }
-      if (/c5|cart|gini|entropy|bagging|boosting|random forest|tree/.test(text) || question.topic === "tree" || question.topic === "ensemble") {
+      if (/regression as well as classification|simultaneously perform regression|classification and regression|continuous numeric|logit regression/.test(`${question.prompt} ${text}`.toLowerCase())) {
+        reasons.push(["task", "任務型態混淆：這題是在問哪些演算法同時有 classification 與 regression 版本；Logit regression 在本課是 binary classification，不是一般連續數值 regression。"]);
+      }
+      if (!/regression as well as classification|simultaneously perform regression|classification and regression|continuous numeric|logit regression/.test(`${question.prompt} ${text}`.toLowerCase())
+        && (/c5|cart|gini|entropy|bagging|boosting|random forest|tree/.test(text) || question.topic === "tree" || question.topic === "ensemble")) {
         reasons.push(["model", "模型差異混淆：C5.0 對 entropy，CART 對 Gini；Bagging 平行，Boosting 序列修錯。"]);
       }
       if (/causality|causal|definitely/.test(text) || question.topic === "project") {
